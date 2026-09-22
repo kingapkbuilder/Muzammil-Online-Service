@@ -25,7 +25,7 @@ jobs:
         run: |
           rm -rf project
           mkdir project
-          unzip -o "Muzammil_Online_Service_GitHub_PORTALS.zip" -d project
+          unzip -o "Muzammil_Online_Service_FINAL_v2.zip" -d project
 
       - name: Find Gradle project
         run: |
