@@ -21,33 +21,35 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Find and test project ZIP
+      - name: Check New Project ZIP
         run: |
-          echo "Checking repository..."
+          ZIP="Muzammil_Online_Service_CV_BioData_v9_DOWNLOAD_SECTION.zip"
 
-          ZIP=$(find . -maxdepth 2 -type f -name "*.zip" | head -n 1)
+          echo "Checking:"
+          echo "$ZIP"
 
-          if [ -z "$ZIP" ]; then
-            echo "ERROR: No ZIP file found"
-            ls -lah
+          if [ ! -f "$ZIP" ]; then
+            echo "ERROR: New project ZIP not found!"
+            echo "ZIP files available:"
+            find . -maxdepth 2 -type f -name "*.zip" -print
             exit 1
           fi
 
-          echo "Found ZIP: $ZIP"
           unzip -t "$ZIP"
 
-      - name: Extract Android project
+      - name: Extract New Android Project
         run: |
           rm -rf project
           mkdir project
 
-          ZIP=$(find . -maxdepth 2 -type f -name "*.zip" | head -n 1)
+          unzip -o \
+            "Muzammil_Online_Service_CV_BioData_v9_DOWNLOAD_SECTION.zip" \
+            -d project
 
-          echo "Extracting: $ZIP"
+          echo "Extracted project:"
+          find project -maxdepth 6 -type f | head -200
 
-          unzip -o "$ZIP" -d project
-
-      - name: Find Gradle project
+      - name: Find Gradle Project
         run: |
           SETTINGS=$(find project -type f \( \
             -name "settings.gradle" \
@@ -55,7 +57,7 @@ jobs:
           \) | head -n 1)
 
           if [ -z "$SETTINGS" ]; then
-            echo "ERROR: Gradle settings file not found"
+            echo "ERROR: settings.gradle not found!"
             find project -maxdepth 8 -type f
             exit 1
           fi
@@ -78,6 +80,7 @@ jobs:
 
           if [ -f "./gradlew" ]; then
             chmod +x ./gradlew
+
             ./gradlew assembleDebug \
               -Dkotlin.jvm.target.validation.mode=warning
           else
