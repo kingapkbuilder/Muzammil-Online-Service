@@ -21,11 +21,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Check project ZIP
+        run: |
+          echo "Repository files:"
+          ls -lah
+          test -f "Muzammil_Online_Service_FINAL_AI_v8.zip"
+
       - name: Extract Android project
         run: |
           rm -rf project
           mkdir project
-          unzip -o "unzip -o "unzip -o "Muzammil_Online_Service_FINAL_AI_v8.zip" -d project" -d project" -d project
+          unzip -o "Muzammil_Online_Service_FINAL_AI_v8.zip" -d project
 
       - name: Find Gradle project
         run: |
@@ -64,6 +70,7 @@ jobs:
 
       - name: Find APK
         run: |
+          echo "APK files:"
           find project -type f -name "*.apk" -print
 
       - name: Upload APK
