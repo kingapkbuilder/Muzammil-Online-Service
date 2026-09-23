@@ -24,7 +24,7 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_CV_BIODATA_FINAL_FIXED_v10_2.zip"
+          Muzammil_Online_Service_CV_BIODATA_FINAL_FIXED_v10_3.zip"
 
           echo "Checking project ZIP..."
           echo "$ZIP"
