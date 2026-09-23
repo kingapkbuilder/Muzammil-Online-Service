@@ -24,7 +24,7 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_CAMERA_STORAGE_PERMISSIONS.zip"
+          ZIP="Muzammil_Online_Service_CV_BIODATA_DOWNLOAD_JPG_PREVIEW_FIXED.zip"
 
           echo "Checking project ZIP..."
           echo "$ZIP"
@@ -49,7 +49,7 @@ jobs:
           echo "Extracting Android project..."
 
           unzip -o \
-            "Muzammil_Online_Service_CAMERA_STORAGE_PERMISSIONS.zip" \
+            "Muzammil_Online_Service_CV_BIODATA_DOWNLOAD_JPG_PREVIEW_FIXED.zip" \
             -d project
 
           echo "Project extracted."
