@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v25
+    name: Build Android APK v26
     runs-on: ubuntu-latest
 
     steps:
@@ -22,16 +22,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Check v25 Project ZIP
+      - name: Check v26 ZIP
         run: |
-          ZIP="Muzammil_Online_Service_REFERENCE_UI_FINAL_v25.zip"
+          ZIP="Muzammil_Online_Service_REFERENCE_UI_MATCHED_v26.zip"
 
           echo "======================================"
-          echo "Muzammil Online Service v25"
+          echo "Muzammil Online Service v26"
           echo "======================================"
 
           if [ ! -f "$ZIP" ]; then
-            echo "ERROR: v25 ZIP not found!"
+            echo "ERROR: v26 ZIP not found!"
             echo ""
             echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip" -print
@@ -51,17 +51,17 @@ jobs:
           mkdir -p project
 
           unzip -o \
-            "Muzammil_Online_Service_REFERENCE_UI_FINAL_v25.zip" \
+            "Muzammil_Online_Service_REFERENCE_UI_MATCHED_v26.zip" \
             -d project
 
           echo "Project extracted successfully."
 
       - name: Find Android Project
         run: |
-          SETTINGS=$(find project -type f \( \
+          SETTINGS=$(find project -type f \
             -name "settings.gradle" \
             -o -name "settings.gradle.kts" \
-          \) | head -n 1)
+          | head -n 1)
 
           if [ -z "$SETTINGS" ]; then
             echo "ERROR: Android Gradle project not found!"
@@ -89,70 +89,4 @@ jobs:
             chmod +x ./gradlew
             echo "Gradle Wrapper found."
           else
-            echo "Gradle Wrapper not found."
-            echo "System Gradle will be used."
-          fi
-
-      - name: Clean Project
-        run: |
-          cd "$PROJECT_DIR"
-
-          if [ -f "./gradlew" ]; then
-            ./gradlew clean \
-              -Dkotlin.jvm.target.validation.mode=warning
-          else
-            gradle clean \
-              -Dkotlin.jvm.target.validation.mode=warning
-          fi
-
-      - name: Build Debug APK
-        run: |
-          cd "$PROJECT_DIR"
-
-          echo "======================================"
-          echo "Building Muzammil Online Service v25"
-          echo "======================================"
-
-          if [ -f "./gradlew" ]; then
-            ./gradlew assembleDebug \
-              -Dkotlin.jvm.target.validation.mode=warning \
-              --stacktrace
-          else
-            gradle assembleDebug \
-              -Dkotlin.jvm.target.validation.mode=warning \
-              --stacktrace
-          fi
-
-      - name: Find APK
-        run: |
-          echo "======================================"
-          echo "Generated APK files"
-          echo "======================================"
-
-          find project \
-            -type f \
-            -name "*.apk" \
-            -print
-
-      - name: Verify APK
-        run: |
-          APK=$(find project -type f -name "*.apk" | head -n 1)
-
-          if [ -z "$APK" ]; then
-            echo "ERROR: APK was not generated!"
-            exit 1
-          fi
-
-          echo "APK successfully generated:"
-          echo "$APK"
-
-          echo ""
-          echo "APK size:"
-          ls -lh "$APK"
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Muzammil-Online-Service-v25-APK
-          path: project/**/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+            echo "
