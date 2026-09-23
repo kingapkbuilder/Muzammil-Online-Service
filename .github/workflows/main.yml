@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v32
+    name: Build Android APK v33
     runs-on: ubuntu-latest
 
     steps:
@@ -22,28 +22,19 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Check v32 Project ZIP
+      - name: Check v33 Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_LAYOUT_ANIMATION_CV_FIXED_v32.zip"
-
-          echo "======================================"
-          echo "Muzammil Online Service v32"
-          echo "======================================"
+          ZIP="Muzammil_Online_Service_A4_CV_LOADING_PROGRESS_v33.zip"
 
           if [ ! -f "$ZIP" ]; then
-            echo "ERROR: v32 ZIP not found!"
-            echo ""
+            echo "ERROR: v33 ZIP not found!"
             echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip" -print
             exit 1
           fi
 
           echo "ZIP found: $ZIP"
-
-          echo "Testing ZIP..."
           unzip -t "$ZIP"
-
-          echo "ZIP test successful."
 
       - name: Extract Android Project
         run: |
@@ -51,10 +42,8 @@ jobs:
           mkdir -p project
 
           unzip -o \
-            "Muzammil_Online_Service_LAYOUT_ANIMATION_CV_FIXED_v32.zip" \
+            "Muzammil_Online_Service_A4_CV_LOADING_PROGRESS_v33.zip" \
             -d project
-
-          echo "Project extracted successfully."
 
       - name: Find Android Project
         run: |
@@ -65,39 +54,25 @@ jobs:
 
           if [ -z "$SETTINGS" ]; then
             echo "ERROR: Android Gradle project not found!"
-            find project -maxdepth 8 -type f
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$SETTINGS")
-
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-          echo "Android project found:"
-          echo "$PROJECT_DIR"
+          echo "Project: $PROJECT_DIR"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
 
-      - name: Prepare Gradle
-        run: |
-          cd "$PROJECT_DIR"
-
-          if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
-            echo "Gradle Wrapper found."
-          else
-            echo "Gradle Wrapper not found."
-            echo "System Gradle will be used."
-          fi
-
       - name: Clean Project
         run: |
           cd "$PROJECT_DIR"
 
           if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
             ./gradlew clean \
               -Dkotlin.jvm.target.validation.mode=warning
           else
@@ -108,10 +83,6 @@ jobs:
       - name: Build Debug APK
         run: |
           cd "$PROJECT_DIR"
-
-          echo "======================================"
-          echo "Building Muzammil Online Service v32"
-          echo "======================================"
 
           if [ -f "./gradlew" ]; then
             ./gradlew assembleDebug \
@@ -125,14 +96,8 @@ jobs:
 
       - name: Find APK
         run: |
-          echo "======================================"
-          echo "Generated APK files"
-          echo "======================================"
-
-          find project \
-            -type f \
-            -name "*.apk" \
-            -print
+          echo "Generated APK:"
+          find project -type f -name "*.apk" -print
 
       - name: Verify APK
         run: |
@@ -145,14 +110,11 @@ jobs:
 
           echo "APK successfully generated:"
           echo "$APK"
-
-          echo ""
-          echo "APK size:"
           ls -lh "$APK"
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v32-APK
+          name: Muzammil-Online-Service-v33-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
