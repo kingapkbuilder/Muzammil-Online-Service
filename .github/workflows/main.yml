@@ -8,12 +8,12 @@ on:
 
 jobs:
   build:
-    name: Build Android APK
+    name: Build Android APK v14
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Java 17
@@ -22,61 +22,56 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Check Project ZIP
+      - name: Check v14 Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_CV_NATIVE_PDF_JPG_FIXED_v13.zip"
+          ZIP="Muzammil_Online_Service_CV_RECEIPT_ALL_BUTTONS_FIXED_v14.zip"
 
           echo "======================================"
-          echo "Muzammil Online Service APK Build"
+          echo "Muzammil Online Service v14"
           echo "======================================"
-
-          echo "Checking project ZIP..."
-          echo "$ZIP"
 
           if [ ! -f "$ZIP" ]; then
-            echo "ERROR: Project ZIP not found!"
+            echo "ERROR: v14 ZIP not found!"
             echo ""
-            echo "Available ZIP files:"
-            find . -maxdepth 2 -type f -name "*.zip" -print
+            echo "ZIP files available in repository:"
+            find . -maxdepth 3 -type f -name "*.zip" -print
             exit 1
           fi
 
-          echo "ZIP found successfully."
+          echo "ZIP found:"
+          echo "$ZIP"
+
+          echo ""
           echo "Testing ZIP..."
 
           unzip -t "$ZIP"
 
-          echo "ZIP test completed successfully."
+          echo ""
+          echo "ZIP test successful."
 
-      - name: Extract Android Project
+      - name: Extract v14 Android Project
         run: |
           rm -rf project
           mkdir -p project
 
-          echo "Extracting Android project..."
-
           unzip -o \
-            "Muzammil_Online_Service_CV_NATIVE_PDF_JPG_FIXED_v13.zip" \
+            "Muzammil_Online_Service_CV_RECEIPT_ALL_BUTTONS_FIXED_v14.zip" \
             -d project
 
-          echo "Project extracted."
+          echo "Project extracted successfully."
 
-          echo "Project files:"
-          find project -maxdepth 6 -type f | head -200
-
-      - name: Find Gradle Project
+      - name: Find Android Project
         run: |
-          echo "Searching for Gradle project..."
-
           SETTINGS=$(find project -type f \( \
             -name "settings.gradle" \
             -o -name "settings.gradle.kts" \
           \) | head -n 1)
 
           if [ -z "$SETTINGS" ]; then
-            echo "ERROR: settings.gradle not found!"
+            echo "ERROR: Android Gradle project not found!"
 
-            echo "Available files:"
+            echo ""
+            echo "Project files:"
             find project -maxdepth 8 -type f
 
             exit 1
@@ -87,7 +82,7 @@ jobs:
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
           echo "======================================"
-          echo "Android project found:"
+          echo "Android project:"
           echo "$PROJECT_DIR"
           echo "======================================"
 
@@ -96,33 +91,39 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Check Gradle Project
+      - name: Prepare Gradle Wrapper
         run: |
           cd "$PROJECT_DIR"
 
-          echo "Checking Gradle files..."
-
           if [ -f "./gradlew" ]; then
-            echo "Gradle Wrapper found."
             chmod +x ./gradlew
-            ./gradlew --version
+            echo "Gradle Wrapper found."
           else
             echo "Gradle Wrapper not found."
-            echo "Using installed Gradle."
-            gradle --version
+            echo "System Gradle will be used."
+          fi
+
+      - name: Clean Project
+        run: |
+          cd "$PROJECT_DIR"
+
+          if [ -f "./gradlew" ]; then
+            ./gradlew clean \
+              -Dkotlin.jvm.target.validation.mode=warning
+          else
+            gradle clean \
+              -Dkotlin.jvm.target.validation.mode=warning
           fi
 
       - name: Build Debug APK
         run: |
-          echo "======================================"
-          echo "Starting APK build..."
-          echo "======================================"
-
           cd "$PROJECT_DIR"
 
-          if [ -f "./gradlew" ]; then
+          echo "======================================"
+          echo "Building Muzammil Online Service v14"
+          echo "======================================"
 
-            chmod +x ./gradlew
+          if [ -f "./gradlew" ]; then
 
             ./gradlew assembleDebug \
               -Dkotlin.jvm.target.validation.mode=warning \
@@ -139,7 +140,7 @@ jobs:
       - name: Find APK
         run: |
           echo "======================================"
-          echo "Searching for generated APK..."
+          echo "Generated APK files"
           echo "======================================"
 
           find project \
@@ -159,11 +160,13 @@ jobs:
           echo "APK successfully generated:"
           echo "$APK"
 
+          echo ""
+          echo "APK size:"
           ls -lh "$APK"
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-APK-v13
+          name: Muzammil-Online-Service-v14-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
