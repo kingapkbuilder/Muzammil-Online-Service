@@ -24,7 +24,7 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_CV_BIODATA_FINAL_FIXED_v10_3.zip"
+          ZIP="Muzammil_Online_Service_CV_BIODATA_CV_FIXED_MANY_THEMES_v11_CLOCK_DATE.zip"
 
           echo "Checking project ZIP..."
           echo "$ZIP"
@@ -48,7 +48,7 @@ jobs:
           echo "Extracting Android project..."
 
           unzip -o \
-            "Muzammil_Online_Service_CV_BIODATA_FINAL_FIXED_v10_3.zip" \
+            "Muzammil_Online_Service_CV_BIODATA_CV_FIXED_MANY_THEMES_v11_CLOCK_DATE.zip" \
             -d project
 
           echo "Project extracted."
@@ -84,6 +84,7 @@ jobs:
 
           if [ -f "./gradlew" ]; then
             chmod +x ./gradlew
+
             ./gradlew assembleDebug \
               -Dkotlin.jvm.target.validation.mode=warning
           else
