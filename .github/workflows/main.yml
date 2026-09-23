@@ -24,7 +24,7 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          Muzammil_Online_Service_CV_BIODATA_FINAL_FIXED_v10_3.zip"
+          ZIP="Muzammil_Online_Service_CV_BIODATA_FINAL_FIXED_v10_3.zip"
 
           echo "Checking project ZIP..."
           echo "$ZIP"
@@ -37,6 +37,7 @@ jobs:
           fi
 
           echo "ZIP found successfully."
+          echo "Testing ZIP..."
           unzip -t "$ZIP"
 
       - name: Extract Android Project
@@ -47,7 +48,7 @@ jobs:
           echo "Extracting Android project..."
 
           unzip -o \
-            "Muzammil_Online_Service_CV_BIODATA_FINAL_FIXED_v10_2.zip" \
+            "Muzammil_Online_Service_CV_BIODATA_FINAL_FIXED_v10_3.zip" \
             -d project
 
           echo "Project extracted."
