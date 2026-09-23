@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v31
+    name: Build Android APK v32
     runs-on: ubuntu-latest
 
     steps:
@@ -22,16 +22,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Check v31 Project ZIP
+      - name: Check v32 Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_CV_JPG_PDF_HEADER_FIXED_v31.zip"
+          ZIP="Muzammil_Online_Service_LAYOUT_ANIMATION_CV_FIXED_v32.zip"
 
           echo "======================================"
-          echo "Muzammil Online Service v31"
+          echo "Muzammil Online Service v32"
           echo "======================================"
 
           if [ ! -f "$ZIP" ]; then
-            echo "ERROR: v31 ZIP not found!"
+            echo "ERROR: v32 ZIP not found!"
             echo ""
             echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip" -print
@@ -39,8 +39,8 @@ jobs:
           fi
 
           echo "ZIP found: $ZIP"
-          echo "Testing ZIP..."
 
+          echo "Testing ZIP..."
           unzip -t "$ZIP"
 
           echo "ZIP test successful."
@@ -51,7 +51,7 @@ jobs:
           mkdir -p project
 
           unzip -o \
-            "Muzammil_Online_Service_CV_JPG_PDF_HEADER_FIXED_v31.zip" \
+            "Muzammil_Online_Service_LAYOUT_ANIMATION_CV_FIXED_v32.zip" \
             -d project
 
           echo "Project extracted successfully."
@@ -110,7 +110,7 @@ jobs:
           cd "$PROJECT_DIR"
 
           echo "======================================"
-          echo "Building Muzammil Online Service v31"
+          echo "Building Muzammil Online Service v32"
           echo "======================================"
 
           if [ -f "./gradlew" ]; then
@@ -153,6 +153,6 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v31-APK
+          name: Muzammil-Online-Service-v32-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
