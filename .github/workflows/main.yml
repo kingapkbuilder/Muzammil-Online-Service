@@ -58,10 +58,10 @@ jobs:
 
       - name: Find Android Project
         run: |
-          SETTINGS=$(find project -type f \
+          SETTINGS=$(find project -type f \( \
             -name "settings.gradle" \
             -o -name "settings.gradle.kts" \
-          | head -n 1)
+          \) | head -n 1)
 
           if [ -z "$SETTINGS" ]; then
             echo "ERROR: Android Gradle project not found!"
@@ -89,4 +89,70 @@ jobs:
             chmod +x ./gradlew
             echo "Gradle Wrapper found."
           else
-            echo "
+            echo "Gradle Wrapper not found."
+            echo "System Gradle will be used."
+          fi
+
+      - name: Clean Project
+        run: |
+          cd "$PROJECT_DIR"
+
+          if [ -f "./gradlew" ]; then
+            ./gradlew clean \
+              -Dkotlin.jvm.target.validation.mode=warning
+          else
+            gradle clean \
+              -Dkotlin.jvm.target.validation.mode=warning
+          fi
+
+      - name: Build Debug APK
+        run: |
+          cd "$PROJECT_DIR"
+
+          echo "======================================"
+          echo "Building Muzammil Online Service v26"
+          echo "======================================"
+
+          if [ -f "./gradlew" ]; then
+            ./gradlew assembleDebug \
+              -Dkotlin.jvm.target.validation.mode=warning \
+              --stacktrace
+          else
+            gradle assembleDebug \
+              -Dkotlin.jvm.target.validation.mode=warning \
+              --stacktrace
+          fi
+
+      - name: Find APK
+        run: |
+          echo "======================================"
+          echo "Generated APK files"
+          echo "======================================"
+
+          find project \
+            -type f \
+            -name "*.apk" \
+            -print
+
+      - name: Verify APK
+        run: |
+          APK=$(find project -type f -name "*.apk" | head -n 1)
+
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK was not generated!"
+            exit 1
+          fi
+
+          echo "APK successfully generated:"
+          echo "$APK"
+
+          echo ""
+          echo "APK size:"
+          ls -lh "$APK"
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Muzammil-Online-Service-v26-APK
+          path: project/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
