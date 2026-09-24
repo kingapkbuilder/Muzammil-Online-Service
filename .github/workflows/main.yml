@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v55
+name: Build Muzammil Online Service v56
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
 
       - name: Check ZIP
         run: |
-          ZIP="Muzammil_Online_Service_PASSPORT_COMPACT_PREVIEW_v55.zip"
+          ZIP="Muzammil_Online_Service_PASSPORT_COLOR_GRADE_COMPACT_v56.zip"
           test -f "$ZIP" || exit 1
           unzip -t "$ZIP"
 
@@ -28,7 +28,7 @@ jobs:
         run: |
           rm -rf project
           mkdir project
-          unzip -o "Muzammil_Online_Service_PASSPORT_COMPACT_PREVIEW_v55.zip" -d project
+          unzip -o "Muzammil_Online_Service_PASSPORT_COLOR_GRADE_COMPACT_v56.zip" -d project
 
       - name: Find Project
         run: |
@@ -55,19 +55,19 @@ jobs:
             gradle clean assembleDebug --stacktrace
           fi
 
-      - name: Check APK
+      - name: Verify APK
         run: |
           APK=$(find "$PROJECT_DIR" \
             -path "*/build/outputs/apk/debug/*.apk" \
             -type f | head -1)
 
           test -n "$APK" || exit 1
-          echo "APK: $APK"
+          echo "APK FOUND: $APK"
           ls -lh "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v55-APK
+          name: Muzammil-Online-Service-v56-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
