@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service APK v53
+name: Build Muzammil Online Service APK v54
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v53
+    name: Build Android APK v54
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,7 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_PASSPORT_SMART_BACKGROUND_v53.zip"
+          ZIP="Muzammil_Online_Service_PASSPORT_COLOR_GRADE_BEAUTY_v54.zip"
 
           if [ ! -f "$ZIP" ]; then
             echo "ERROR: Project ZIP not found!"
@@ -37,7 +37,7 @@ jobs:
 
       - name: Extract Android Project
         run: |
-          ZIP="Muzammil_Online_Service_PASSPORT_SMART_BACKGROUND_v53.zip"
+          ZIP="Muzammil_Online_Service_PASSPORT_COLOR_GRADE_BEAUTY_v54.zip"
 
           rm -rf project
           mkdir -p project
@@ -92,12 +92,12 @@ jobs:
           echo "================================"
           echo "APK BUILD SUCCESSFUL"
           echo "================================"
-          echo "$APK"
+          echo "APK: $APK"
           ls -lh "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v53-APK
+          name: Muzammil-Online-Service-v54-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
