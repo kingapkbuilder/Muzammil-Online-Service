@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service APK v41
+name: Build Muzammil Online Service APK v42
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v41
+    name: Build Android APK v42
     runs-on: ubuntu-latest
 
     steps:
@@ -23,10 +23,11 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_FINAL_ULTRA_STABLE_v41.zip"
+          ZIP="Muzammil_Online_Service_FINAL_DOWNLOAD_SHARE_PREVIEW_v42.zip"
 
           if [ ! -f "$ZIP" ]; then
             echo "ERROR: Project ZIP not found!"
+            echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip" -print
             exit 1
           fi
@@ -40,7 +41,7 @@ jobs:
           mkdir -p project
 
           unzip -o \
-            "Muzammil_Online_Service_FINAL_ULTRA_STABLE_v41.zip" \
+            "Muzammil_Online_Service_FINAL_DOWNLOAD_SHARE_PREVIEW_v42.zip" \
             -d project
 
       - name: Find Android Project
@@ -83,8 +84,6 @@ jobs:
 
       - name: Verify APK
         run: |
-          echo "Searching for generated APK..."
-
           APK=$(find "$PROJECT_DIR" \
             -type f \
             -path "*/build/outputs/apk/debug/*.apk" \
@@ -103,6 +102,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v41-APK
+          name: Muzammil-Online-Service-v42-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
