@@ -1,11 +1,10 @@
 name: Build Muzammil Online Service v68 APK
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-      - master
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,16 +17,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
 
       - name: Find Project ZIP
         shell: bash
@@ -35,122 +34,96 @@ jobs:
           set -e
 
           ZIP=$(find . -maxdepth 2 -type f \
-            -name 'Muzammil_Online_Service_v68_*.zip' \
-            | head -1)
+            -name 'Muzammil_Online_Service_v68_*.zip' | head -1)
 
           if [ -z "$ZIP" ]; then
-            echo "ERROR: v68 ZIP nahi mila."
+            echo "ERROR: v68 ZIP nahi mila"
             exit 1
           fi
 
-          echo "ZIP found: $ZIP"
+          echo "Found: $ZIP"
           echo "PROJECT_ZIP=$ZIP" >> "$GITHUB_ENV"
 
       - name: Extract Project
-        run: |
-          rm -rf project
-          mkdir project
-          unzip -q "$PROJECT_ZIP" -d project
-
-          echo "Project files:"
-          find project -maxdepth 4 -type f | sort | head -200
-
-      - name: Locate Web Project
         shell: bash
         run: |
           set -e
 
-          ROOT=$(find project -type f \
-            \( -name package.json -o -name index.html \) \
-            -print | sed 's#/[^/]*$##' | head -1)
+          rm -rf project
+          mkdir project
+
+          unzip -q "$PROJECT_ZIP" -d project
+
+          echo "Project structure:"
+          find project -maxdepth 5 -type f | sort | head -300
+
+      - name: Locate Android Project
+        shell: bash
+        run: |
+          set -e
+
+          ROOT=$(find project \
+            -type f \
+            -name "settings.gradle.kts" \
+            -print \
+            | sed 's#/settings.gradle.kts$##' \
+            | head -1)
 
           if [ -z "$ROOT" ]; then
-            echo "ERROR: Web project nahi mila."
+            echo "ERROR: settings.gradle.kts nahi mila"
             exit 1
           fi
 
-          echo "APP_ROOT=$ROOT" >> "$GITHUB_ENV"
-          echo "App root: $ROOT"
+          echo "ANDROID_ROOT=$ROOT" >> "$GITHUB_ENV"
 
-      - name: Install Dependencies
-        working-directory: ${{ env.APP_ROOT }}
+          echo "Android project:"
+          echo "$ROOT"
+
+      - name: Validate Android Project
+        working-directory: ${{ env.ANDROID_ROOT }}
+        shell: bash
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+          set -e
 
-      - name: Build Web App
-        working-directory: ${{ env.APP_ROOT }}
+          test -f settings.gradle.kts
+          test -f build.gradle.kts
+          test -f app/build.gradle.kts
+          test -f app/src/main/AndroidManifest.xml
+
+          echo "Android project OK"
+
+      - name: Build Debug APK
+        working-directory: ${{ env.ANDROID_ROOT }}
+        shell: bash
         run: |
-          if node -e "const p=require('./package.json'); process.exit(p.scripts?.build ? 0 : 1)"
-          then
-            npm run build
-          else
-            echo "Build script nahi hai, existing web files use honge."
-          fi
+          set -e
 
-      - name: Prepare Web Files
+          gradle assembleDebug \
+            --no-daemon \
+            --stacktrace
+
+      - name: Find APK
+        working-directory: ${{ env.ANDROID_ROOT }}
+        shell: bash
         run: |
-          rm -rf www
-          mkdir www
+          set -e
 
-          if [ -d "${APP_ROOT}/dist" ]; then
-            cp -a "${APP_ROOT}/dist/." www/
-          elif [ -d "${APP_ROOT}/build" ]; then
-            cp -a "${APP_ROOT}/build/." www/
-          else
-            cp -a "${APP_ROOT}/." www/
-          fi
-
-          test -f www/index.html
-
-      - name: Install Capacitor
-        run: |
-          npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-
-      - name: Initialize Capacitor
-        run: |
-          npx cap init \
-            "Muzammil Online Service" \
-            "com.muzammil.onlineservice" \
-            --web-dir www
-
-      - name: Add Android
-        run: |
-          npx cap add android
-
-      - name: Sync Android
-        run: |
-          npx cap sync android
-
-      - name: Build APK
-        working-directory: android
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
-
-      - name: Check APK
-        run: |
-          APK=$(find android \
+          APK=$(find app/build/outputs/apk/debug \
             -type f \
             -name "*.apk" \
-            -path "*/build/outputs/apk/debug/*" \
             | head -1)
 
           if [ -z "$APK" ]; then
-            echo "ERROR: APK generate nahi hua."
+            echo "ERROR: APK generate nahi hua"
             exit 1
           fi
 
-          echo "APK successfully generated:"
+          echo "APK generated:"
           ls -lh "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Muzammil-Online-Service-v68-APK
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: ${{ env.ANDROID_ROOT }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
