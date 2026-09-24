@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v71 APK
+name: Build Muzammil Online Service v73 APK
 
 on:
   workflow_dispatch:
@@ -28,16 +28,16 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Find v71 ZIP
+      - name: Find v73 ZIP
         shell: bash
         run: |
           set -e
 
           ZIP=$(find . -maxdepth 2 -type f \
-            -name 'Muzammil_Online_Service_v71_*.zip' | head -1)
+            -name 'Muzammil_Online_Service_v73_*.zip' | head -1)
 
           if [ -z "$ZIP" ]; then
-            echo "ERROR: v71 ZIP nahi mila."
+            echo "ERROR: v73 ZIP nahi mila."
             echo "Available ZIP files:"
             find . -maxdepth 2 -type f -name "*.zip"
             exit 1
@@ -48,7 +48,7 @@ jobs:
 
           echo "PROJECT_ZIP=$ZIP" >> "$GITHUB_ENV"
 
-      - name: Extract v71 Project
+      - name: Extract v73 Project
         shell: bash
         run: |
           set -e
@@ -96,7 +96,7 @@ jobs:
 
           echo "Android project validation successful."
 
-      - name: Build v71 Debug APK
+      - name: Build v73 Debug APK
         working-directory: ${{ env.ANDROID_ROOT }}
         shell: bash
         run: |
@@ -123,14 +123,14 @@ jobs:
           fi
 
           echo "================================"
-          echo "v71 APK BUILD SUCCESSFUL"
+          echo "v73 APK BUILD SUCCESSFUL"
           echo "================================"
 
           ls -lh "$APK"
 
-      - name: Upload v71 APK
+      - name: Upload v73 APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v71-APK
+          name: Muzammil-Online-Service-v73-APK
           path: ${{ env.ANDROID_ROOT }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
