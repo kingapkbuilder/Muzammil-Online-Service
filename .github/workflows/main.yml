@@ -8,12 +8,11 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v33
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Java 17
@@ -22,28 +21,27 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Check v33 Project ZIP
+      - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_A4_CV_LOADING_PROGRESS_v33.zip"
+          ZIP="Muzammil_Online_Service_FINAL_LOADING_ANIMATION_v34.zip"
 
           if [ ! -f "$ZIP" ]; then
-            echo "ERROR: v33 ZIP not found!"
-            echo "Available ZIP files:"
+            echo "ERROR: Project ZIP not found!"
+            echo "ZIP files available:"
             find . -maxdepth 3 -type f -name "*.zip" -print
             exit 1
           fi
 
-          echo "ZIP found: $ZIP"
+          echo "Found: $ZIP"
           unzip -t "$ZIP"
 
       - name: Extract Android Project
         run: |
-          rm -rf project
-          mkdir -p project
+          ZIP="Muzammil_Online_Service_FINAL_LOADING_ANIMATION_v34.zip"
 
-          unzip -o \
-            "Muzammil_Online_Service_A4_CV_LOADING_PROGRESS_v33.zip" \
-            -d project
+          rm -rf project
+          mkdir project
+          unzip -o "$ZIP" -d project
 
       - name: Find Android Project
         run: |
@@ -53,38 +51,27 @@ jobs:
           \) | head -n 1)
 
           if [ -z "$SETTINGS" ]; then
-            echo "ERROR: Android Gradle project not found!"
+            echo "ERROR: settings.gradle not found!"
+            find project -maxdepth 5 -type f | head -200
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$SETTINGS")
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-          echo "Project: $PROJECT_DIR"
+          echo "Android Project: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
 
-      - name: Clean Project
-        run: |
-          cd "$PROJECT_DIR"
-
-          if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
-            ./gradlew clean \
-              -Dkotlin.jvm.target.validation.mode=warning
-          else
-            gradle clean \
-              -Dkotlin.jvm.target.validation.mode=warning
-          fi
-
       - name: Build Debug APK
         run: |
           cd "$PROJECT_DIR"
 
           if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
             ./gradlew assembleDebug \
               -Dkotlin.jvm.target.validation.mode=warning \
               --stacktrace
@@ -94,27 +81,9 @@ jobs:
               --stacktrace
           fi
 
-      - name: Find APK
-        run: |
-          echo "Generated APK:"
-          find project -type f -name "*.apk" -print
-
-      - name: Verify APK
-        run: |
-          APK=$(find project -type f -name "*.apk" | head -n 1)
-
-          if [ -z "$APK" ]; then
-            echo "ERROR: APK was not generated!"
-            exit 1
-          fi
-
-          echo "APK successfully generated:"
-          echo "$APK"
-          ls -lh "$APK"
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v33-APK
+          name: Muzammil-Online-Service-v34-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
