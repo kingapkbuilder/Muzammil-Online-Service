@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v65
+name: Build Muzammil Online Service v66
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
 
       - name: Check ZIP
         run: |
-          ZIP="Muzammil_Online_Service_FINAL_PVC_ADJUST_PREVIEW_v65.zip"
+          ZIP="Muzammil_Online_Service_FINAL_PVC_ADJUST_PREVIEW_v66.zip"
           test -f "$ZIP" || exit 1
           unzip -t "$ZIP"
 
@@ -29,15 +29,13 @@ jobs:
         run: |
           rm -rf project
           mkdir project
-          unzip -o "Muzammil_Online_Service_FINAL_PVC_ADJUST_PREVIEW_v65.zip" -d project
+          unzip -o "Muzammil_Online_Service_FINAL_PVC_ADJUST_PREVIEW_v66.zip" -d project
 
       - name: Find Android Project
         run: |
           SETTINGS=$(find project -type f \
             \( -name "settings.gradle" -o -name "settings.gradle.kts" \) | head -1)
-
           test -n "$SETTINGS" || exit 1
-
           echo "PROJECT_DIR=$(dirname "$SETTINGS")" >> "$GITHUB_ENV"
 
       - name: Setup Gradle
@@ -48,7 +46,6 @@ jobs:
       - name: Build APK
         run: |
           cd "$PROJECT_DIR"
-
           if [ -f "./gradlew" ]; then
             chmod +x ./gradlew
             ./gradlew clean assembleDebug --stacktrace
@@ -58,12 +55,8 @@ jobs:
 
       - name: Verify APK
         run: |
-          APK=$(find "$PROJECT_DIR" \
-            -path "*/build/outputs/apk/debug/*.apk" \
-            -type f | head -1)
-
+          APK=$(find "$PROJECT_DIR" -path "*/build/outputs/apk/debug/*.apk" -type f | head -1)
           test -n "$APK" || exit 1
-
           echo "APK FOUND:"
           echo "$APK"
           ls -lh "$APK"
@@ -71,6 +64,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v65-APK
+          name: Muzammil-Online-Service-v66-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
