@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service APK v50
+name: Build Muzammil Online Service APK v52
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v50
+    name: Build Android APK v52
     runs-on: ubuntu-latest
 
     steps:
@@ -23,10 +23,11 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_PASSPORT_PHOTO_TAP_ADJUST_v50.zip"
+          ZIP="Muzammil_Online_Service_PASSPORT_PHOTO_PRO_BACKGROUND_COURT_v52.zip"
 
           if [ ! -f "$ZIP" ]; then
             echo "ERROR: Project ZIP not found!"
+            echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip" -print
             exit 1
           fi
@@ -36,7 +37,7 @@ jobs:
 
       - name: Extract Android Project
         run: |
-          ZIP="Muzammil_Online_Service_PASSPORT_PHOTO_TAP_ADJUST_v50.zip"
+          ZIP="Muzammil_Online_Service_PASSPORT_PHOTO_PRO_BACKGROUND_COURT_v52.zip"
 
           rm -rf project
           mkdir -p project
@@ -50,10 +51,15 @@ jobs:
 
           if [ -z "$SETTINGS" ]; then
             echo "ERROR: Android project not found!"
+            find project -maxdepth 4 -type f | head -100
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$SETTINGS")
+
+          echo "Android project:"
+          echo "$PROJECT_DIR"
+
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Setup Gradle
@@ -88,13 +94,15 @@ jobs:
             exit 1
           fi
 
-          echo "APK FOUND:"
-          echo "$APK"
+          echo "================================"
+          echo "APK BUILD SUCCESSFUL"
+          echo "================================"
+          echo "APK: $APK"
           ls -lh "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v50-APK
+          name: Muzammil-Online-Service-v52-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
