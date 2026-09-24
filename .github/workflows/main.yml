@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v68
+name: Build Muzammil Online Service v68 APK
 
 on:
   push:
@@ -9,11 +9,9 @@ on:
 
 jobs:
   build:
-    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -23,109 +21,77 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          gradle-version: "8.11.1"
+          node-version: "20"
 
-      - name: Inspect Repository
+      - name: Check Project
         run: |
           echo "=============================="
-          echo "REPOSITORY CONTENT"
+          echo "PROJECT FILES"
           echo "=============================="
+          find . -maxdepth 3 -type f \
+            -not -path "./.git/*" | sort | head -200
 
-          pwd
-          echo ""
-
-          find . -maxdepth 4 -type f \
-            -not -path "./.git/*" \
-            | sort
-
-      - name: Find Android Project
-        shell: bash
+      - name: Install Dependencies
         run: |
-          echo "Searching Android Gradle project..."
-
-          SETTINGS=$(find . \
-            -type f \
-            \( -name "settings.gradle" -o -name "settings.gradle.kts" \) \
-            -not -path "./.git/*" \
-            | head -1)
-
-          if [ -n "$SETTINGS" ]; then
-            PROJECT_DIR=$(dirname "$SETTINGS")
-
-            echo "Found Gradle settings:"
-            echo "$SETTINGS"
-            echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-            exit 0
+          if [ -f package.json ]; then
+            npm install
+          else
+            echo "package.json nahi mila."
           fi
 
-          GRADLE_BUILD=$(find . \
-            -type f \
-            \( -name "build.gradle" -o -name "build.gradle.kts" \) \
-            -not -path "./.git/*" \
-            | head -1)
-
-          if [ -n "$GRADLE_BUILD" ]; then
-            PROJECT_DIR=$(dirname "$GRADLE_BUILD")
-
-            echo "Found Gradle build:"
-            echo "$GRADLE_BUILD"
-            echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-            exit 0
+      - name: Install Capacitor
+        run: |
+          if [ ! -f package.json ]; then
+            npm init -y
           fi
 
-          echo ""
-          echo "ERROR: Android Gradle project nahi mila."
-          echo ""
-          echo "Repository ke files upar print ho chuke hain."
-          exit 1
+          npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      - name: Check App Module
+      - name: Prepare Web App
         run: |
-          echo "Project:"
-          echo "$PROJECT_DIR"
+          mkdir -p www
 
-          echo ""
-          echo "Project files:"
-          find "$PROJECT_DIR" -maxdepth 3 -type f | sort
-
-          APP_DIR=$(find "$PROJECT_DIR" \
-            -type f \
-            \( -name "app/build.gradle" -o -name "app/build.gradle.kts" \) \
-            | head -1)
-
-          if [ -z "$APP_DIR" ]; then
-            echo ""
-            echo "ERROR: app/build.gradle ya app/build.gradle.kts nahi mila."
+          if [ -d "dist" ]; then
+            cp -r dist/* www/
+          elif [ -d "build" ]; then
+            cp -r build/* www/
+          elif [ -f "index.html" ]; then
+            cp -r ./* www/ || true
+          else
+            echo "ERROR: Web app files nahi mile."
             exit 1
           fi
 
-          echo ""
-          echo "APP MODULE FOUND:"
-          echo "$APP_DIR"
+      - name: Initialize Capacitor
+        run: |
+          npx cap init \
+            "Muzammil Online Service" \
+            "com.muzammil.onlineservice" \
+            --web-dir www
+
+      - name: Add Android
+        run: |
+          npx cap add android
+
+      - name: Sync Android
+        run: |
+          npx cap sync android
 
       - name: Build APK
-        shell: bash
         run: |
-          cd "$PROJECT_DIR"
-
-          if [ -f "./gradlew" ]; then
-            echo "Using Gradle Wrapper..."
-            chmod +x ./gradlew
-            ./gradlew clean assembleDebug --stacktrace
-          else
-            echo "Using installed Gradle..."
-            gradle clean assembleDebug --stacktrace
-          fi
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
 
       - name: Find APK
         run: |
-          APK=$(find "$PROJECT_DIR" \
+          APK=$(find android \
             -type f \
             -name "*.apk" \
-            -path "*/build/outputs/*" \
+            -path "*/build/outputs/apk/debug/*" \
             | head -1)
 
           if [ -z "$APK" ]; then
@@ -133,19 +99,13 @@ jobs:
             exit 1
           fi
 
-          echo ""
-          echo "=============================="
-          echo "APK CREATED SUCCESSFULLY"
-          echo "=============================="
-
+          echo "APK:"
           echo "$APK"
           ls -lh "$APK"
-
-          echo "APK_PATH=$APK" >> "$GITHUB_ENV"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v68-Photoshop-Transform-APK
-          path: ${{ env.APK_PATH }}
+          name: Muzammil-Online-Service-v68-APK
+          path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
