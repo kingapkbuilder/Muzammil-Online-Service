@@ -1,12 +1,14 @@
-name: Build Muzammil Online Service v66
+name: Build Muzammil Online Service v68
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
@@ -17,46 +19,48 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
-
-      - name: Check ZIP
-        run: |
-          ZIP="Muzammil_Online_Service_FINAL_PVC_ADJUST_PREVIEW_v66.zip"
-          test -f "$ZIP" || exit 1
-          unzip -t "$ZIP"
-
-      - name: Extract Project
-        run: |
-          rm -rf project
-          mkdir project
-          unzip -o "Muzammil_Online_Service_FINAL_PVC_ADJUST_PREVIEW_v66.zip" -d project
-
-      - name: Find Android Project
-        run: |
-          SETTINGS=$(find project -type f \
-            \( -name "settings.gradle" -o -name "settings.gradle.kts" \) | head -1)
-          test -n "$SETTINGS" || exit 1
-          echo "PROJECT_DIR=$(dirname "$SETTINGS")" >> "$GITHUB_ENV"
+          java-version: "17"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.11.1'
+          gradle-version: "8.11.1"
+
+      - name: Check Project
+        run: |
+          echo "Checking Android project..."
+
+          test -f settings.gradle.kts || {
+            echo "ERROR: settings.gradle.kts not found"
+            exit 1
+          }
+
+          test -d app || {
+            echo "ERROR: app folder not found"
+            exit 1
+          }
+
+          test -f app/build.gradle.kts || {
+            echo "ERROR: app/build.gradle.kts not found"
+            exit 1
+          }
+
+          echo "Android project found."
 
       - name: Build APK
         run: |
-          cd "$PROJECT_DIR"
-          if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
-            ./gradlew clean assembleDebug --stacktrace
-          else
-            gradle clean assembleDebug --stacktrace
-          fi
+          gradle clean assembleDebug --stacktrace
 
       - name: Verify APK
         run: |
-          APK=$(find "$PROJECT_DIR" -path "*/build/outputs/apk/debug/*.apk" -type f | head -1)
-          test -n "$APK" || exit 1
+          APK=$(find app/build/outputs/apk/debug \
+            -type f -name "*.apk" | head -1)
+
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK not generated"
+            exit 1
+          fi
+
           echo "APK FOUND:"
           echo "$APK"
           ls -lh "$APK"
@@ -64,6 +68,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v66-APK
-          path: project/**/build/outputs/apk/debug/*.apk
+          name: Muzammil-Online-Service-v68-APK
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
