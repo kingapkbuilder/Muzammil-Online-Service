@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service APK v45
+name: Build Muzammil Online Service APK v46
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v45
+    name: Build Android APK v46
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,7 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_FINAL_DOWNLOAD_SHARE_PREVIEW_XEROX_WHATSAPP_v45.zip"
+          ZIP="Muzammil_Online_Service_FINAL_DOWNLOAD_SHARE_PREVIEW_XEROX_WHATSAPP_v46.zip"
 
           if [ ! -f "$ZIP" ]; then
             echo "ERROR: Project ZIP not found!"
@@ -37,12 +37,11 @@ jobs:
 
       - name: Extract Android Project
         run: |
+          ZIP="Muzammil_Online_Service_FINAL_DOWNLOAD_SHARE_PREVIEW_XEROX_WHATSAPP_v46.zip"
+
           rm -rf project
           mkdir -p project
-
-          unzip -o \
-            "Muzammil_Online_Service_FINAL_DOWNLOAD_SHARE_PREVIEW_XEROX_WHATSAPP_v45.zip" \
-            -d project
+          unzip -o "$ZIP" -d project
 
       - name: Find Android Project
         run: |
@@ -104,6 +103,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v45-APK
+          name: Muzammil-Online-Service-v46-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
