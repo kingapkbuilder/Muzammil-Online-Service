@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service APK v47
+name: Build Muzammil Online Service APK v48
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK v47
+    name: Build Android APK v48
     runs-on: ubuntu-latest
 
     steps:
@@ -23,10 +23,11 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_FINAL_HOME_SERVICES_FIX_v47.zip"
+          ZIP="Muzammil_Online_Service_HOME_SERVICES_PASSPORT_PHOTO_v48.zip"
 
           if [ ! -f "$ZIP" ]; then
             echo "ERROR: Project ZIP not found!"
+            echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip" -print
             exit 1
           fi
@@ -36,7 +37,8 @@ jobs:
 
       - name: Extract Android Project
         run: |
-          ZIP="Muzammil_Online_Service_FINAL_HOME_SERVICES_FIX_v47.zip"
+          ZIP="Muzammil_Online_Service_HOME_SERVICES_PASSPORT_PHOTO_v48.zip"
+
           rm -rf project
           mkdir -p project
           unzip -o "$ZIP" -d project
@@ -55,6 +57,8 @@ jobs:
           PROJECT_DIR=$(dirname "$SETTINGS")
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
+          echo "Android Project: $PROJECT_DIR"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -66,6 +70,7 @@ jobs:
 
           if [ -f "./gradlew" ]; then
             chmod +x ./gradlew
+
             ./gradlew clean assembleDebug \
               -Dkotlin.jvm.target.validation.mode=warning \
               --stacktrace
@@ -77,6 +82,8 @@ jobs:
 
       - name: Verify APK
         run: |
+          echo "Searching for APK..."
+
           APK=$(find "$PROJECT_DIR" \
             -type f \
             -path "*/build/outputs/apk/debug/*.apk" \
@@ -84,6 +91,7 @@ jobs:
 
           if [ -z "$APK" ]; then
             echo "ERROR: APK was not generated!"
+            find "$PROJECT_DIR" -type f -name "*.apk" -print
             exit 1
           fi
 
@@ -94,6 +102,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v47-APK
+          name: Muzammil-Online-Service-v48-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
