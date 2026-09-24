@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Android APK
+    name: Build Android APK v36
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,7 @@ jobs:
 
       - name: Check Project ZIP
         run: |
-          ZIP="Muzammil_Online_Service_FINAL_LOADING_TRANSLATION_v35.zip"
+          ZIP="Muzammil_Online_Service_FINAL_PROFESSIONAL_v36.zip"
 
           if [ ! -f "$ZIP" ]; then
             echo "ERROR: Project ZIP not found!"
@@ -37,7 +37,7 @@ jobs:
 
       - name: Extract Android Project
         run: |
-          ZIP="Muzammil_Online_Service_FINAL_LOADING_TRANSLATION_v35.zip"
+          ZIP="Muzammil_Online_Service_FINAL_PROFESSIONAL_v36.zip"
 
           rm -rf project
           mkdir project
@@ -51,15 +51,15 @@ jobs:
           \) | head -n 1)
 
           if [ -z "$SETTINGS" ]; then
-            echo "ERROR: Android project not found!"
+            echo "ERROR: settings.gradle not found!"
             find project -maxdepth 5 -type f | head -200
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$SETTINGS")
 
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
           echo "Android Project: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -84,12 +84,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v35-APK
-          path: project/**/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Muzammil-Online-Service-v34-APK
+          name: Muzammil-Online-Service-v36-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
