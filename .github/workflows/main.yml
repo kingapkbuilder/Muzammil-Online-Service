@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v69 APK
+name: Build Muzammil Online Service v70 APK
 
 on:
   workflow_dispatch:
@@ -28,28 +28,24 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Find v69 ZIP
+      - name: Find v70 ZIP
         shell: bash
         run: |
           set -e
 
           ZIP=$(find . -maxdepth 2 -type f \
-            -name 'Muzammil_Online_Service_v69_*.zip' \
-            | head -1)
+            -name 'Muzammil_Online_Service_v70_*.zip' | head -1)
 
           if [ -z "$ZIP" ]; then
-            echo "ERROR: v69 ZIP nahi mila."
-            echo "Available ZIP files:"
+            echo "ERROR: v70 ZIP nahi mila."
             find . -maxdepth 2 -type f -name "*.zip"
             exit 1
           fi
 
-          echo "Found ZIP:"
-          echo "$ZIP"
-
+          echo "Found: $ZIP"
           echo "PROJECT_ZIP=$ZIP" >> "$GITHUB_ENV"
 
-      - name: Extract v69 Project
+      - name: Extract v70 Project
         shell: bash
         run: |
           set -e
@@ -59,7 +55,7 @@ jobs:
 
           unzip -q "$PROJECT_ZIP" -d project
 
-          echo "Project files:"
+          echo "Project structure:"
           find project -maxdepth 5 -type f | sort | head -300
 
       - name: Locate Android Gradle Project
@@ -76,13 +72,12 @@ jobs:
 
           if [ -z "$ROOT" ]; then
             echo "ERROR: Android Gradle project nahi mila."
-            echo "settings.gradle.kts missing hai."
             exit 1
           fi
 
           echo "ANDROID_ROOT=$ROOT" >> "$GITHUB_ENV"
 
-          echo "Android project found:"
+          echo "Android project:"
           echo "$ROOT"
 
       - name: Validate Android Project
@@ -91,8 +86,6 @@ jobs:
         run: |
           set -e
 
-          echo "Checking required files..."
-
           test -f settings.gradle.kts
           test -f build.gradle.kts
           test -f app/build.gradle.kts
@@ -100,11 +93,7 @@ jobs:
 
           echo "Android project validation successful."
 
-      - name: Show Gradle Version
-        run: |
-          gradle --version
-
-      - name: Build v69 Debug APK
+      - name: Build v70 Debug APK
         working-directory: ${{ env.ANDROID_ROOT }}
         shell: bash
         run: |
@@ -130,15 +119,12 @@ jobs:
             exit 1
           fi
 
-          echo "================================"
           echo "APK BUILD SUCCESSFUL"
-          echo "================================"
-
           ls -lh "$APK"
 
-      - name: Upload v69 APK
+      - name: Upload v70 APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v69-APK
+          name: Muzammil-Online-Service-v70-APK
           path: ${{ env.ANDROID_ROOT }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
