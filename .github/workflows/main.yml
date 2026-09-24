@@ -55,8 +55,12 @@ jobs:
 
       - name: Verify APK
         run: |
-          APK=$(find "$PROJECT_DIR" -path "*/build/outputs/apk/debug/*.apk" -type f | head -1)
+          APK=$(find "$PROJECT_DIR" \
+            -path "*/build/outputs/apk/debug/*.apk" \
+            -type f | head -1)
+
           test -n "$APK" || exit 1
+
           echo "APK FOUND:"
           echo "$APK"
           ls -lh "$APK"
