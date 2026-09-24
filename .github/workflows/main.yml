@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v60
+name: Build Muzammil Online Service v61
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
 
       - name: Check ZIP
         run: |
-          ZIP="Muzammil_Online_Service_PASSPORT_GRADE_LIVE_MINI_PREVIEW_300DPI_v60.zip"
+          ZIP="Muzammil_Online_Service_PASSPORT_GRADE_LIVE_MINI_PREVIEW_300DPI_v61.zip"
           test -f "$ZIP" || exit 1
           unzip -t "$ZIP"
 
@@ -27,7 +27,7 @@ jobs:
         run: |
           rm -rf project
           mkdir project
-          unzip -o "Muzammil_Online_Service_PASSPORT_GRADE_LIVE_MINI_PREVIEW_300DPI_v60.zip" -d project
+          unzip -o "Muzammil_Online_Service_PASSPORT_GRADE_LIVE_MINI_PREVIEW_300DPI_v61.zip" -d project
 
       - name: Find Project
         run: |
@@ -62,6 +62,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v60-APK
+          name: Muzammil-Online-Service-v61-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
