@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v80
+name: Build Muzammil Online Service v81
 
 on:
   workflow_dispatch:
@@ -18,70 +18,59 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
-      - name: Extract Android Project
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Find Android Project
         shell: bash
         run: |
           set -e
 
-          ZIP=$(find . -maxdepth 2 -type f -name "*.zip" | head -n 1)
-
-          if [ -z "$ZIP" ]; then
-            echo "ERROR: Android ZIP nahi mila"
-            exit 1
-          fi
-
-          echo "ZIP: $ZIP"
-
-          rm -rf android_project
-          mkdir -p android_project
-
-          unzip -q -o "$ZIP" -d android_project
-
-          SETTINGS=$(find android_project -type f -name "settings.gradle.kts" | head -n 1)
+          SETTINGS=$(find . -type f -name "settings.gradle.kts" | head -n 1)
 
           if [ -z "$SETTINGS" ]; then
-            echo "ERROR: settings.gradle.kts nahi mila"
-            find android_project -maxdepth 4 -type f | head -150
+            echo "ERROR: settings.gradle.kts nahi mila."
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$SETTINGS")
 
+          echo "Android Project: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-          echo "Android project found:"
-          echo "$PROJECT_DIR"
-
-      - name: Setup Gradle 8.10.2
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.10.2'
-
-      - name: Check Gradle
-        run: gradle --version
-
-      - name: Check Android Project
-        working-directory: ${{ env.PROJECT_DIR }}
+      - name: Check Project
         run: |
-          echo "Project files:"
-          ls -la
-          echo "Android modules:"
-          find . -maxdepth 2 -type f | sort | head -100
+          echo "Project:"
+          ls -la "$PROJECT_DIR"
+          echo "App:"
+          ls -la "$PROJECT_DIR/app"
 
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
           gradle clean assembleDebug --stacktrace
 
-      - name: Find APK
+      - name: Verify APK
+        shell: bash
         run: |
-          find "$PROJECT_DIR/app/build/outputs" -type f -name "*.apk" -print
+          APK=$(find "$PROJECT_DIR/app/build/outputs/apk/debug" \
+            -type f -name "*.apk" | head -n 1)
+
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK create nahi hua."
+            exit 1
+          fi
+
+          echo "APK CREATED:"
+          echo "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v80-APK
+          name: Muzammil-Online-Service-v81-APK
           path: "${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk"
           if-no-files-found: error
