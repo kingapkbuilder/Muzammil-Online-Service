@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v78 APK
+name: Build Muzammil Online Service APK
 
 on:
   workflow_dispatch:
@@ -28,17 +28,23 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Find v78 ZIP
+      - name: Find Latest Project ZIP
         shell: bash
         run: |
           set -e
 
           ZIP=$(find . -maxdepth 3 -type f \
-            -name 'Muzammil_Online_Service_v78_*.zip' \
-            | head -1)
+            -name 'Muzammil_Online_Service_v79_*.zip' \
+            | sort | head -1)
 
           if [ -z "$ZIP" ]; then
-            echo "ERROR: v78 ZIP nahi mila."
+            ZIP=$(find . -maxdepth 3 -type f \
+              -name 'Muzammil_Online_Service_v78_*.zip' \
+              | sort | head -1)
+          fi
+
+          if [ -z "$ZIP" ]; then
+            echo "ERROR: v79/v78 project ZIP nahi mila."
             echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip"
             exit 1
@@ -47,7 +53,13 @@ jobs:
           echo "Found: $ZIP"
           echo "PROJECT_ZIP=$ZIP" >> "$GITHUB_ENV"
 
-      - name: Extract v78 Project
+          if [[ "$ZIP" == *"_v79_"* ]]; then
+            echo "BUILD_VERSION=v79" >> "$GITHUB_ENV"
+          else
+            echo "BUILD_VERSION=v78" >> "$GITHUB_ENV"
+          fi
+
+      - name: Extract Project
         shell: bash
         run: |
           set -e
@@ -93,7 +105,7 @@ jobs:
 
           echo "Android project validation successful."
 
-      - name: Build v78 Debug APK
+      - name: Build Debug APK
         working-directory: ${{ env.ANDROID_ROOT }}
         shell: bash
         run: |
@@ -120,14 +132,14 @@ jobs:
           fi
 
           echo "================================"
-          echo "v78 APK BUILD SUCCESSFUL"
+          echo "${BUILD_VERSION} APK BUILD SUCCESSFUL"
           echo "================================"
 
           ls -lh "$APK"
 
-      - name: Upload v78 APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v78-APK
+          name: Muzammil-Online-Service-${{ env.BUILD_VERSION }}-APK
           path: ${{ env.ANDROID_ROOT }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
