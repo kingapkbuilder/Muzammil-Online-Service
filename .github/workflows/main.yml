@@ -28,38 +28,26 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Find Latest Project ZIP
+      - name: Find v79 ZIP
         shell: bash
         run: |
           set -e
 
           ZIP=$(find . -maxdepth 3 -type f \
             -name 'Muzammil_Online_Service_v79_*.zip' \
-            | sort | head -1)
+            | head -1)
 
           if [ -z "$ZIP" ]; then
-            ZIP=$(find . -maxdepth 3 -type f \
-              -name 'Muzammil_Online_Service_v78_*.zip' \
-              | sort | head -1)
-          fi
-
-          if [ -z "$ZIP" ]; then
-            echo "ERROR: v79/v78 project ZIP nahi mila."
+            echo "ERROR: v79 ZIP nahi mila."
             echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip"
             exit 1
           fi
 
-          echo "Found: $ZIP"
+          echo "Found ZIP: $ZIP"
           echo "PROJECT_ZIP=$ZIP" >> "$GITHUB_ENV"
 
-          if [[ "$ZIP" == *"_v79_"* ]]; then
-            echo "BUILD_VERSION=v79" >> "$GITHUB_ENV"
-          else
-            echo "BUILD_VERSION=v78" >> "$GITHUB_ENV"
-          fi
-
-      - name: Extract Project
+      - name: Extract v79 Project
         shell: bash
         run: |
           set -e
@@ -69,8 +57,7 @@ jobs:
 
           unzip -q "$PROJECT_ZIP" -d project
 
-          echo "Project structure:"
-          find project -maxdepth 5 -type f | sort | head -300
+          echo "Project extracted successfully."
 
       - name: Locate Android Project
         shell: bash
@@ -85,12 +72,27 @@ jobs:
             | head -1)
 
           if [ -z "$ROOT" ]; then
-            echo "ERROR: settings.gradle.kts nahi mila."
+            echo "ERROR: Android project nahi mila."
             exit 1
           fi
 
           echo "ANDROID_ROOT=$ROOT" >> "$GITHUB_ENV"
-          echo "Android project: $ROOT"
+          echo "Android root: $ROOT"
+
+      - name: Fix Gradle Settings
+        working-directory: ${{ env.ANDROID_ROOT }}
+        shell: bash
+        run: |
+          set -e
+
+          if grep -q "RepositoriesMode.FAIL_ON_PROJECT_REPOS" settings.gradle.kts; then
+            if ! grep -q "import org.gradle.api.initialization.resolve.RepositoriesMode" settings.gradle.kts; then
+              sed -i '1i import org.gradle.api.initialization.resolve.RepositoriesMode' settings.gradle.kts
+            fi
+          fi
+
+          echo "===== settings.gradle.kts ====="
+          cat settings.gradle.kts
 
       - name: Validate Android Project
         working-directory: ${{ env.ANDROID_ROOT }}
@@ -105,15 +107,27 @@ jobs:
 
           echo "Android project validation successful."
 
+      - name: Show Gradle Version
+        run: |
+          gradle --version
+
+      - name: Clean Project
+        working-directory: ${{ env.ANDROID_ROOT }}
+        shell: bash
+        run: |
+          set -e
+          gradle clean --no-daemon --stacktrace
+
       - name: Build Debug APK
         working-directory: ${{ env.ANDROID_ROOT }}
         shell: bash
         run: |
           set -e
 
-          gradle assembleDebug \
+          gradle :app:assembleDebug \
             --no-daemon \
-            --stacktrace
+            --stacktrace \
+            --info
 
       - name: Verify APK
         working-directory: ${{ env.ANDROID_ROOT }}
@@ -131,15 +145,16 @@ jobs:
             exit 1
           fi
 
-          echo "================================"
-          echo "${BUILD_VERSION} APK BUILD SUCCESSFUL"
-          echo "================================"
+          echo "======================================"
+          echo "MUZZAMMIL ONLINE SERVICE"
+          echo "v79 APK BUILD SUCCESSFUL"
+          echo "======================================"
 
           ls -lh "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-${{ env.BUILD_VERSION }}-APK
+          name: Muzammil-Online-Service-v79-APK
           path: ${{ env.ANDROID_ROOT }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
