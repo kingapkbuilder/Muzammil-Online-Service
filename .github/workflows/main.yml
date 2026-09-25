@@ -1,4 +1,4 @@
-name: Build Muzammil Online Service v81
+name: Build Muzammil Online Service v82
 
 on:
   workflow_dispatch:
@@ -38,11 +38,8 @@ jobs:
             -not -path "./.git/*" \
             | head -n 1)
 
-          if [ -n "$SETTINGS" ]; then
-            echo "Project already extracted:"
-            echo "$SETTINGS"
-          else
-            echo "settings.gradle.kts nahi mila."
+          if [ -z "$SETTINGS" ]; then
+            echo "Project direct root mein nahi mila."
             echo "ZIP search kar rahe hain..."
 
             ZIP=$(find . \
@@ -52,65 +49,44 @@ jobs:
               | head -n 1)
 
             if [ -z "$ZIP" ]; then
-              echo "ERROR: Android project ZIP bhi nahi mila."
-              echo "Repository files:"
-              find . -maxdepth 3 -type f | head -200
+              echo "ERROR: Android project ZIP nahi mila."
               exit 1
             fi
 
-            echo "ZIP found:"
-            echo "$ZIP"
+            echo "ZIP found: $ZIP"
 
             mkdir -p android_project
-
-            unzip -o "$ZIP" \
-              -d android_project
-
-            echo "ZIP extracted."
+            unzip -o "$ZIP" -d android_project
 
             SETTINGS=$(find android_project \
               -type f \
               -name "settings.gradle.kts" \
               | head -n 1)
+          fi
 
-            if [ -z "$SETTINGS" ]; then
-              echo "ERROR: ZIP extract karne ke baad bhi settings.gradle.kts nahi mila."
-
-              echo "Extracted files:"
-              find android_project \
-                -maxdepth 6 \
-                -type f \
-                | head -300
-
-              exit 1
-            fi
+          if [ -z "$SETTINGS" ]; then
+            echo "ERROR: settings.gradle.kts nahi mila."
+            find . -maxdepth 6 -type f | head -300
+            exit 1
           fi
 
           PROJECT_DIR=$(dirname "$SETTINGS")
 
-          echo "================================"
-          echo "ANDROID PROJECT:"
-          echo "$PROJECT_DIR"
-          echo "================================"
-
+          echo "Android Project: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-      - name: Check Android Project
+      - name: Check Project
         shell: bash
         run: |
           set -e
-
-          echo "Project files:"
-          find "$PROJECT_DIR" \
-            -maxdepth 2 \
-            -type f \
-            | sort
 
           test -f "$PROJECT_DIR/settings.gradle.kts"
           test -f "$PROJECT_DIR/build.gradle.kts"
           test -d "$PROJECT_DIR/app"
 
           echo "Android project OK."
+          echo "Project files:"
+          find "$PROJECT_DIR" -maxdepth 2 -type f | sort
 
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
@@ -132,14 +108,12 @@ jobs:
             exit 1
           fi
 
-          echo "================================"
           echo "APK CREATED:"
           echo "$APK"
-          echo "================================"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v81-APK
+          name: Muzammil-Online-Service-v82-APK
           path: "${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk"
           if-no-files-found: error
