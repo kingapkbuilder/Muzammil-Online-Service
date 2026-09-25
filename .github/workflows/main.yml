@@ -1,13 +1,10 @@
-name: Build Muzammil Online Service APK
+name: Build Muzammil Online Service v80
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-
-permissions:
-  contents: read
 
 jobs:
   build:
@@ -17,212 +14,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 17
+      - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
 
-      - name: Setup Gradle 8.9
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.9"
 
-      - name: Find v79 ZIP
-        shell: bash
-        run: |
-          set -e
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
-          ZIP=$(find . -maxdepth 3 -type f \
-            -name 'Muzammil_Online_Service_v79_*.zip' \
-            | head -1)
-
-          if [ -z "$ZIP" ]; then
-            echo "ERROR: v79 ZIP nahi mila."
-            find . -maxdepth 3 -type f -name "*.zip"
-            exit 1
-          fi
-
-          echo "Found ZIP: $ZIP"
-          echo "PROJECT_ZIP=$ZIP" >> "$GITHUB_ENV"
-
-      - name: Extract v79 Project
-        shell: bash
-        run: |
-          set -e
-
-          rm -rf project
-          mkdir -p project
-
-          unzip -q "$PROJECT_ZIP" -d project
-
-          echo "Project extracted successfully."
-
-      - name: Locate Android Project
-        shell: bash
-        run: |
-          set -e
-
-          ROOT=$(find project \
-            -type f \
-            -name "settings.gradle.kts" \
-            -print \
-            | sed 's#/settings.gradle.kts$##' \
-            | head -1)
-
-          if [ -z "$ROOT" ]; then
-            echo "ERROR: Android project nahi mila."
-            exit 1
-          fi
-
-          echo "ANDROID_ROOT=$ROOT" >> "$GITHUB_ENV"
-          echo "Android root: $ROOT"
-
-      - name: Fix Gradle Settings
-        working-directory: ${{ env.ANDROID_ROOT }}
-        shell: bash
-        run: |
-          set -e
-
-          if grep -q "RepositoriesMode.FAIL_ON_PROJECT_REPOS" settings.gradle.kts; then
-            if ! grep -q "import org.gradle.api.initialization.resolve.RepositoriesMode" settings.gradle.kts; then
-              sed -i \
-                '1i import org.gradle.api.initialization.resolve.RepositoriesMode' \
-                settings.gradle.kts
-            fi
-          fi
-
-          echo "===== settings.gradle.kts ====="
-          cat settings.gradle.kts
-
-      - name: Validate Project
-        working-directory: ${{ env.ANDROID_ROOT }}
-        shell: bash
-        run: |
-          set -e
-
-          test -f settings.gradle.kts
-          test -f build.gradle.kts
-          test -f app/build.gradle.kts
-          test -f app/src/main/AndroidManifest.xml
-          test -f app/src/main/java/com/muzammil/onlineservice/MainActivity.java
-
-          echo "Android project validation successful."
-
-      - name: Show Gradle Version
-        run: |
-          java -version
-          gradle --version
-
-      - name: Clean Project
-        working-directory: ${{ env.ANDROID_ROOT }}
-        shell: bash
-        run: |
-          set -e
-
-          gradle clean \
-            --no-daemon \
-            --stacktrace
-
-      - name: Compile Java
-        working-directory: ${{ env.ANDROID_ROOT }}
-        shell: bash
-        run: |
-          set -o pipefail
-
-          rm -f compile.log
-
-          if gradle :app:compileDebugJavaWithJavac \
-            --no-daemon \
-            --stacktrace \
-            --info 2>&1 | tee compile.log; then
-
-            echo "======================================"
-            echo "JAVA COMPILATION SUCCESSFUL"
-            echo "======================================"
-
-          else
-
-            echo "======================================"
-            echo "JAVA COMPILATION FAILED"
-            echo "======================================"
-
-            echo "----- ACTUAL ERRORS -----"
-
-            grep -iE \
-              'error:|cannot find symbol|package .* does not exist|duplicate class|Caused by:' \
-              compile.log \
-              | head -150 || true
-
-            echo "----- LAST 150 LINES -----"
-            tail -150 compile.log
-
-            exit 1
-          fi
+      - name: Clean
+        run: ./gradlew clean
 
       - name: Build Debug APK
-        working-directory: ${{ env.ANDROID_ROOT }}
-        shell: bash
-        run: |
-          set -o pipefail
-
-          rm -f build.log
-
-          if gradle :app:assembleDebug \
-            --no-daemon \
-            --stacktrace \
-            --info 2>&1 | tee build.log; then
-
-            echo "======================================"
-            echo "MUZZAMMIL ONLINE SERVICE"
-            echo "V79 APK BUILD SUCCESSFUL"
-            echo "======================================"
-
-          else
-
-            echo "======================================"
-            echo "APK BUILD FAILED"
-            echo "======================================"
-
-            echo "----- ACTUAL ERRORS -----"
-
-            grep -iE \
-              'error:|FAILURE:|What went wrong:|Execution failed|Caused by:|cannot find symbol|package .* does not exist|AAPT|D8|duplicate class' \
-              build.log \
-              | head -150 || true
-
-            echo "----- LAST 200 LINES -----"
-            tail -200 build.log
-
-            exit 1
-          fi
-
-      - name: Verify APK
-        working-directory: ${{ env.ANDROID_ROOT }}
-        shell: bash
-        run: |
-          set -e
-
-          APK=$(find app/build/outputs/apk/debug \
-            -type f \
-            -name "*.apk" \
-            | head -1)
-
-          if [ -z "$APK" ]; then
-            echo "ERROR: APK generate nahi hua."
-            exit 1
-          fi
-
-          echo "======================================"
-          echo "MUZZAMMIL ONLINE SERVICE"
-          echo "V79 APK READY"
-          echo "======================================"
-
-          ls -lh "$APK"
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v79-APK
-          path: ${{ env.ANDROID_ROOT }}/app/build/outputs/apk/debug/*.apk
+          name: Muzammil-Online-Service-v80-APK
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
