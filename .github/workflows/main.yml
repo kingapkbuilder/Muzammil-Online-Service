@@ -23,7 +23,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Setup Gradle
+      - name: Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
@@ -39,7 +39,6 @@ jobs:
 
           if [ -z "$ZIP" ]; then
             echo "ERROR: v79 ZIP nahi mila."
-            echo "Available ZIP files:"
             find . -maxdepth 3 -type f -name "*.zip"
             exit 1
           fi
@@ -87,14 +86,16 @@ jobs:
 
           if grep -q "RepositoriesMode.FAIL_ON_PROJECT_REPOS" settings.gradle.kts; then
             if ! grep -q "import org.gradle.api.initialization.resolve.RepositoriesMode" settings.gradle.kts; then
-              sed -i '1i import org.gradle.api.initialization.resolve.RepositoriesMode' settings.gradle.kts
+              sed -i \
+                '1i import org.gradle.api.initialization.resolve.RepositoriesMode' \
+                settings.gradle.kts
             fi
           fi
 
           echo "===== settings.gradle.kts ====="
           cat settings.gradle.kts
 
-      - name: Validate Android Project
+      - name: Validate Project
         working-directory: ${{ env.ANDROID_ROOT }}
         shell: bash
         run: |
@@ -104,11 +105,13 @@ jobs:
           test -f build.gradle.kts
           test -f app/build.gradle.kts
           test -f app/src/main/AndroidManifest.xml
+          test -f app/src/main/java/com/muzammil/onlineservice/MainActivity.java
 
           echo "Android project validation successful."
 
       - name: Show Gradle Version
         run: |
+          java -version
           gradle --version
 
       - name: Clean Project
@@ -116,18 +119,83 @@ jobs:
         shell: bash
         run: |
           set -e
-          gradle clean --no-daemon --stacktrace
+
+          gradle clean \
+            --no-daemon \
+            --stacktrace
+
+      - name: Compile Java
+        working-directory: ${{ env.ANDROID_ROOT }}
+        shell: bash
+        run: |
+          set -o pipefail
+
+          rm -f compile.log
+
+          if gradle :app:compileDebugJavaWithJavac \
+            --no-daemon \
+            --stacktrace \
+            --info 2>&1 | tee compile.log; then
+
+            echo "======================================"
+            echo "JAVA COMPILATION SUCCESSFUL"
+            echo "======================================"
+
+          else
+
+            echo "======================================"
+            echo "JAVA COMPILATION FAILED"
+            echo "======================================"
+
+            echo "----- ACTUAL ERRORS -----"
+
+            grep -iE \
+              'error:|cannot find symbol|package .* does not exist|duplicate class|Caused by:' \
+              compile.log \
+              | head -150 || true
+
+            echo "----- LAST 150 LINES -----"
+            tail -150 compile.log
+
+            exit 1
+          fi
 
       - name: Build Debug APK
         working-directory: ${{ env.ANDROID_ROOT }}
         shell: bash
         run: |
-          set -e
+          set -o pipefail
 
-          gradle :app:assembleDebug \
+          rm -f build.log
+
+          if gradle :app:assembleDebug \
             --no-daemon \
             --stacktrace \
-            --info
+            --info 2>&1 | tee build.log; then
+
+            echo "======================================"
+            echo "MUZZAMMIL ONLINE SERVICE"
+            echo "V79 APK BUILD SUCCESSFUL"
+            echo "======================================"
+
+          else
+
+            echo "======================================"
+            echo "APK BUILD FAILED"
+            echo "======================================"
+
+            echo "----- ACTUAL ERRORS -----"
+
+            grep -iE \
+              'error:|FAILURE:|What went wrong:|Execution failed|Caused by:|cannot find symbol|package .* does not exist|AAPT|D8|duplicate class' \
+              build.log \
+              | head -150 || true
+
+            echo "----- LAST 200 LINES -----"
+            tail -200 build.log
+
+            exit 1
+          fi
 
       - name: Verify APK
         working-directory: ${{ env.ANDROID_ROOT }}
@@ -147,7 +215,7 @@ jobs:
 
           echo "======================================"
           echo "MUZZAMMIL ONLINE SERVICE"
-          echo "v79 APK BUILD SUCCESSFUL"
+          echo "V79 APK READY"
           echo "======================================"
 
           ls -lh "$APK"
