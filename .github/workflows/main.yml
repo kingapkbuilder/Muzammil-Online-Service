@@ -32,32 +32,52 @@ jobs:
             exit 1
           fi
 
-          echo "ZIP found: $ZIP"
+          echo "ZIP: $ZIP"
 
+          rm -rf android_project
           mkdir -p android_project
-          unzip -o "$ZIP" -d android_project
 
-          echo "Searching for gradlew..."
+          unzip -q -o "$ZIP" -d android_project
 
-          GRADLEW=$(find android_project -type f -name "gradlew" | head -n 1)
+          SETTINGS=$(find android_project -type f -name "settings.gradle.kts" | head -n 1)
 
-          if [ -z "$GRADLEW" ]; then
-            echo "ERROR: gradlew nahi mila"
-            find android_project -maxdepth 4 -type f | head -100
+          if [ -z "$SETTINGS" ]; then
+            echo "ERROR: settings.gradle.kts nahi mila"
+            find android_project -maxdepth 4 -type f | head -150
             exit 1
           fi
 
-          PROJECT_DIR=$(dirname "$GRADLEW")
+          PROJECT_DIR=$(dirname "$SETTINGS")
+
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-          echo "Android project: $PROJECT_DIR"
+          echo "Android project found:"
+          echo "$PROJECT_DIR"
 
-      - name: Make gradlew executable
-        run: chmod +x "$PROJECT_DIR/gradlew"
+      - name: Setup Gradle 8.10.2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
 
-      - name: Build APK
+      - name: Check Gradle
+        run: gradle --version
+
+      - name: Check Android Project
         working-directory: ${{ env.PROJECT_DIR }}
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          echo "Project files:"
+          ls -la
+          echo "Android modules:"
+          find . -maxdepth 2 -type f | sort | head -100
+
+      - name: Build Debug APK
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: |
+          gradle clean assembleDebug --stacktrace
+
+      - name: Find APK
+        run: |
+          find "$PROJECT_DIR/app/build/outputs" -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
