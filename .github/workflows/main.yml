@@ -81,14 +81,14 @@ jobs:
             exit 1
           fi
           echo "Found APK: $APK_PATH"
-          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v86.apk"
-          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v86.apk" >> "$GITHUB_ENV"
-          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v86.apk"
+          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v87.apk"
+          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v87.apk" >> "$GITHUB_ENV"
+          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v87.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v86-APK
+          name: Muzammil-Online-Service-v87-APK
           path: ${{ env.FINAL_APK }}
           if-no-files-found: error
           retention-days: 90
@@ -98,18 +98,19 @@ jobs:
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
         with:
-          tag_name: v86.0
-          name: "Muzammil Online Service v86 APK"
+          tag_name: v87.0
+          name: "Muzammil Online Service v87 APK"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v86)
+            ## 📲 Muzammil Online Service Android APK (v87)
             Direct download link for Android mobile devices.
 
-            ### What's New in v86:
-            - 🔒 **Airtight Master Admin Security:** `admin` / `imran` par galat password se login hone ki problem 100% khatam (strictly `muzammil786`).
-            - 🏪 **Multi-Tenant Shop Isolation:** Har operator/staff ko sirf apni dukaan ke bills aur customers dikhenge. Master Admin sabhi dukaane filter kar sakte hain.
-            - 📲 **Direct WhatsApp Bill Sharing:** Ek tap me customer ko formal Tax Invoice/Receipt WhatsApp par chali jayegi.
-            - ⏳ **Expiry Reminder Alert:** Staff ke account me 3 din bache hone par renewal alert notification.
-            - 📊 **Aaj Ka Hisab (Daily Income Report):** Cash vs UPI/Online payment breakdown aur 1-click WhatsApp hisab share.
+            ### What's New in v87:
+            - 🪄 **1-Click Proper Background Remove:** Passport Photo Maker me studio-quality background removal (1-Click White BG & 1-Click Blue BG).
+            - 👤 **Face & Clothes Protection:** Chehra, kaan aur shirt bina cut huye background clean hoga.
+            - 🔒 **Airtight Master Admin Security:** `imran` / `admin` login strictly secured with `muzammil786`.
+            - 🚫 **Clean Login Screen:** Initial screen par se irrelevant 'Account Expired' notice removed.
+            - 🏪 **Multi-Tenant Shop Isolation:** Har operator/staff ko sirf unki dukaan ka data dikhega.
+            - 📲 **Direct WhatsApp Bill Sharing:** 1-tap customer receipt share via WhatsApp.
           files: |
             ${{ env.FINAL_APK }}
           draft: false
