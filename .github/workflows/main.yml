@@ -34,6 +34,7 @@ jobs:
         run: |
           set -e
           echo "Finding Android Project..."
+          
           if [ -f "android/settings.gradle.kts" ]; then
             echo "Found in android/ folder"
             echo "ANDROID_DIR=android" >> "$GITHUB_ENV"
@@ -101,14 +102,7 @@ jobs:
           name: "Muzammil Online Service v84 APK"
           body: |
             ## 📲 Muzammil Online Service Android APK (v84)
-            
             Direct download link for Android mobile devices.
-            
-            ### How to Install:
-            1. Download `Muzammil-Online-Service-v84.apk` below.
-            2. Open the file on your Android phone.
-            3. Tap **Allow from this source** if prompted.
-            4. Tap **Install** and start using the app.
           files: |
             ${{ env.FINAL_APK }}
           draft: false
