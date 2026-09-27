@@ -105,12 +105,13 @@ jobs:
             Direct download link for Android mobile devices.
 
             ### What's New in v89:
-            - 🛡️ **Fixed WhatsApp Deep Link Crash:** Resolved `net::ERR_UNKNOWN_URL_SCHEME` by adding native Android intent scheme interceptors.
+            - 🔒 **Privacy & Security Hardening:** Password is never exposed on screen or in alert popups when incorrect credentials are entered.
+            - 🛡️ **Clean Public Interface:** Removed server/database infrastructure details from the login panel.
+            - 🚀 **Fixed WhatsApp Deep Link Crash:** Resolved `net::ERR_UNKNOWN_URL_SCHEME` by adding native Android intent scheme interceptors.
             - 📸 **4×6 Inch Landscape Passport Photo:** Exact 1800×1200 px (300 DPI) sheet with 8 copies (4×2) layout.
             - 📥 **Dual Download Format:** Direct **4×6 JPG** (300 DPI) and **4×6 PDF** (6×4") download for zero-margin printing.
             - ✂️ **Studio Scissor Guidelines:** Dotted cutting marks for easy scissors/paper-cutter trimming.
             - 🪄 **1-Click Background Matting:** Instant clean white/blue background without clipping hair or clothes.
-            - 🔒 **Airtight Master Admin Security:** `imran` / `admin` restricted strictly to `muzammil786`.
             - 👥 **Fixed Staff Login:** Persistent credentials for seamless operator access.
           files: |
             ${{ env.FINAL_APK }}
