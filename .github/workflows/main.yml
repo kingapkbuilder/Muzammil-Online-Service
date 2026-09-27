@@ -81,14 +81,14 @@ jobs:
             exit 1
           fi
           echo "Found APK: $APK_PATH"
-          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v88.apk"
-          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v88.apk" >> "$GITHUB_ENV"
-          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v88.apk"
+          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v89.apk"
+          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v89.apk" >> "$GITHUB_ENV"
+          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v89.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v88-APK
+          name: Muzammil-Online-Service-v89-APK
           path: ${{ env.FINAL_APK }}
           if-no-files-found: error
           retention-days: 90
@@ -98,19 +98,20 @@ jobs:
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
         with:
-          tag_name: v88.0
-          name: "Muzammil Online Service v88 APK"
+          tag_name: v89.0
+          name: "Muzammil Online Service v89 APK"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v88)
+            ## 📲 Muzammil Online Service Android APK (v89)
             Direct download link for Android mobile devices.
 
-            ### What's New in v88:
+            ### What's New in v89:
+            - 🛡️ **Fixed WhatsApp Deep Link Crash:** Resolved `net::ERR_UNKNOWN_URL_SCHEME` by adding native Android intent scheme interceptors.
             - 📸 **4×6 Inch Landscape Passport Photo:** Exact 1800×1200 px (300 DPI) sheet with 8 copies (4×2) layout.
             - 📥 **Dual Download Format:** Direct **4×6 JPG** (300 DPI) and **4×6 PDF** (6×4") download for zero-margin printing.
             - ✂️ **Studio Scissor Guidelines:** Dotted cutting marks for easy scissors/paper-cutter trimming.
-            - 🪄 **1-Click Proper Background Matting:** Single-tap clean white/blue background without clipping hair or clothes.
+            - 🪄 **1-Click Background Matting:** Instant clean white/blue background without clipping hair or clothes.
             - 🔒 **Airtight Master Admin Security:** `imran` / `admin` restricted strictly to `muzammil786`.
-            - 👥 **Seamless Staff Login:** Fixed credential preservation for active operators.
+            - 👥 **Fixed Staff Login:** Persistent credentials for seamless operator access.
           files: |
             ${{ env.FINAL_APK }}
           draft: false
