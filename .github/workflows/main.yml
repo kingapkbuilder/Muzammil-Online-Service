@@ -107,6 +107,7 @@ jobs:
             ### What's New in v85:
             - Automatic Kickout on Expiry: Expire hone par user reverse hokar seedhe Login Screen par lock ho jayega.
             - Koi bhi service ya button open nahi hoga jab tak validity active na ho.
+            - Left menu me se Install App aur Download APK Project links normal users se hide kar diye gaye hain (sirf Master Admin ko dikhenge).
             - Single clean universal login panel.
             - Master Admin (Imran Khan) lifetime unlimited access.
           files: |
