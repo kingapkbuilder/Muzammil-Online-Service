@@ -81,14 +81,14 @@ jobs:
             exit 1
           fi
           echo "Found APK: $APK_PATH"
-          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v85.apk"
-          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v85.apk" >> "$GITHUB_ENV"
-          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v85.apk"
+          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v86.apk"
+          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v86.apk" >> "$GITHUB_ENV"
+          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v86.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v85-APK
+          name: Muzammil-Online-Service-v86-APK
           path: ${{ env.FINAL_APK }}
           if-no-files-found: error
           retention-days: 90
@@ -98,18 +98,18 @@ jobs:
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
         with:
-          tag_name: v85.0
-          name: "Muzammil Online Service v85 APK"
+          tag_name: v86.0
+          name: "Muzammil Online Service v86 APK"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v85)
+            ## 📲 Muzammil Online Service Android APK (v86)
             Direct download link for Android mobile devices.
 
-            ### What's New in v85:
-            - Automatic Kickout on Expiry: Expire hone par user reverse hokar seedhe Login Screen par lock ho jayega.
-            - Koi bhi service ya button open nahi hoga jab tak validity active na ho.
-            - Left menu me se Install App aur Download APK Project links normal users se hide kar diye gaye hain (sirf Master Admin ko dikhenge).
-            - Single clean universal login panel.
-            - Master Admin (Imran Khan) lifetime unlimited access.
+            ### What's New in v86:
+            - 🔒 **Airtight Master Admin Security:** `admin` / `imran` par galat password se login hone ki problem 100% khatam (strictly `muzammil786`).
+            - 🏪 **Multi-Tenant Shop Isolation:** Har operator/staff ko sirf apni dukaan ke bills aur customers dikhenge. Master Admin sabhi dukaane filter kar sakte hain.
+            - 📲 **Direct WhatsApp Bill Sharing:** Ek tap me customer ko formal Tax Invoice/Receipt WhatsApp par chali jayegi.
+            - ⏳ **Expiry Reminder Alert:** Staff ke account me 3 din bache hone par renewal alert notification.
+            - 📊 **Aaj Ka Hisab (Daily Income Report):** Cash vs UPI/Online payment breakdown aur 1-click WhatsApp hisab share.
           files: |
             ${{ env.FINAL_APK }}
           draft: false
