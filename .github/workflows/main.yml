@@ -81,14 +81,14 @@ jobs:
             exit 1
           fi
           echo "Found APK: $APK_PATH"
-          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v84.apk"
-          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v84.apk" >> "$GITHUB_ENV"
-          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v84.apk"
+          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v85.apk"
+          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v85.apk" >> "$GITHUB_ENV"
+          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v85.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v84-APK
+          name: Muzammil-Online-Service-v85-APK
           path: ${{ env.FINAL_APK }}
           if-no-files-found: error
           retention-days: 90
@@ -98,11 +98,17 @@ jobs:
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
         with:
-          tag_name: v84.0
-          name: "Muzammil Online Service v84 APK"
+          tag_name: v85.0
+          name: "Muzammil Online Service v85 APK"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v84)
+            ## 📲 Muzammil Online Service Android APK (v85)
             Direct download link for Android mobile devices.
+
+            ### What's New in v85:
+            - Automatic Kickout on Expiry: Expire hone par user reverse hokar seedhe Login Screen par lock ho jayega.
+            - Koi bhi service ya button open nahi hoga jab tak validity active na ho.
+            - Single clean universal login panel.
+            - Master Admin (Imran Khan) lifetime unlimited access.
           files: |
             ${{ env.FINAL_APK }}
           draft: false
