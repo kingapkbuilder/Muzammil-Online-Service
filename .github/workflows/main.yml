@@ -34,7 +34,6 @@ jobs:
         run: |
           set -e
           echo "Finding Android Project..."
-          
           if [ -f "android/settings.gradle.kts" ]; then
             echo "Found in android/ folder"
             echo "ANDROID_DIR=android" >> "$GITHUB_ENV"
@@ -81,14 +80,14 @@ jobs:
             exit 1
           fi
           echo "Found APK: $APK_PATH"
-          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v83.apk"
-          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v83.apk" >> "$GITHUB_ENV"
-          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v83.apk"
+          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v84.apk"
+          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v84.apk" >> "$GITHUB_ENV"
+          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v84.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v83-APK
+          name: Muzammil-Online-Service-v84-APK
           path: ${{ env.FINAL_APK }}
           if-no-files-found: error
           retention-days: 90
@@ -98,15 +97,15 @@ jobs:
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
         with:
-          tag_name: v83.0
-          name: "Muzammil Online Service v83 APK"
+          tag_name: v84.0
+          name: "Muzammil Online Service v84 APK"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v83)
+            ## 📲 Muzammil Online Service Android APK (v84)
             
             Direct download link for Android mobile devices.
             
             ### How to Install:
-            1. Download `Muzammil-Online-Service-v83.apk` below.
+            1. Download `Muzammil-Online-Service-v84.apk` below.
             2. Open the file on your Android phone.
             3. Tap **Allow from this source** if prompted.
             4. Tap **Install** and start using the app.
