@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build Android APK
+    name: Build Android APK (v90)
     runs-on: ubuntu-latest
 
     steps:
@@ -81,14 +81,14 @@ jobs:
             exit 1
           fi
           echo "Found APK: $APK_PATH"
-          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v89.apk"
-          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v89.apk" >> "$GITHUB_ENV"
-          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v89.apk"
+          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v90.apk"
+          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v90.apk" >> "$GITHUB_ENV"
+          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v90.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v89-APK
+          name: Muzammil-Online-Service-v90-APK
           path: ${{ env.FINAL_APK }}
           if-no-files-found: error
           retention-days: 90
@@ -98,21 +98,18 @@ jobs:
         if: github.ref == 'refs/heads/main'
         continue-on-error: true
         with:
-          tag_name: v89.0
-          name: "Muzammil Online Service v89 APK"
+          tag_name: v90.0
+          name: "Muzammil Online Service v90 APK"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v89)
-            Direct download link for Android mobile devices.
-
-            ### What's New in v89:
-            - 🔒 **Privacy & Security Hardening:** Password is never exposed on screen or in alert popups when incorrect credentials are entered.
-            - 🛡️ **Clean Public Interface:** Removed server/database infrastructure details from the login panel.
-            - 🚀 **Fixed WhatsApp Deep Link Crash:** Resolved `net::ERR_UNKNOWN_URL_SCHEME` by adding native Android intent scheme interceptors.
-            - 📸 **4×6 Inch Landscape Passport Photo:** Exact 1800×1200 px (300 DPI) sheet with 8 copies (4×2) layout.
-            - 📥 **Dual Download Format:** Direct **4×6 JPG** (300 DPI) and **4×6 PDF** (6×4") download for zero-margin printing.
-            - ✂️ **Studio Scissor Guidelines:** Dotted cutting marks for easy scissors/paper-cutter trimming.
-            - 🪄 **1-Click Background Matting:** Instant clean white/blue background without clipping hair or clothes.
-            - 👥 **Fixed Staff Login:** Persistent credentials for seamless operator access.
+            ## 📲 Muzammil Online Service Android APK (v90)
+            
+            Official release with multi-device login, WhatsApp 1-Click login, and offline password verification.
+            
+            ### How to Install:
+            1. Download `Muzammil-Online-Service-v90.apk` below.
+            2. Open the file on your Android phone.
+            3. Tap **Allow from this source** if prompted.
+            4. Tap **Install** and login with your credentials or WhatsApp Activation Code.
           files: |
             ${{ env.FINAL_APK }}
           draft: false
