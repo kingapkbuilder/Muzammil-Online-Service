@@ -92,14 +92,17 @@ jobs:
           fi
 
           if [ -f "public/jspdf.umd.min.js" ]; then
+            echo "Syncing jspdf.umd.min.js to assets..."
             cp -f "public/jspdf.umd.min.js" "$ASSETS_DIR/jspdf.umd.min.js"
           fi
 
           if [ -f "public/manifest.json" ]; then
+            echo "Syncing manifest.json to assets..."
             cp -f "public/manifest.json" "$ASSETS_DIR/manifest.json"
           fi
 
           if [ -f "public/sw.js" ]; then
+            echo "Syncing sw.js to assets..."
             cp -f "public/sw.js" "$ASSETS_DIR/sw.js"
           fi
           
