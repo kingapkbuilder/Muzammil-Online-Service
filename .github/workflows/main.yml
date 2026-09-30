@@ -1,17 +1,32 @@
-name: Build and Release Muzammil Online Service APK
+name: Build and Release Muzammil Online Service APK (v98)
 
 on:
   workflow_dispatch:
+    inputs:
+      version_code:
+        description: 'Android Version Code (e.g. 98)'
+        required: false
+        default: '98'
+      version_name:
+        description: 'Android Version Name (e.g. 98.0.0)'
+        required: false
+        default: '98.0.0'
+      create_release:
+        description: 'Create GitHub Release with direct APK download'
+        required: false
+        type: boolean
+        default: true
   push:
     branches:
       - main
+      - master
 
 permissions:
   contents: write
 
 jobs:
   build-apk:
-    name: Build Android APK (v96)
+    name: Build Android APK (v98.0)
     runs-on: ubuntu-latest
 
     steps:
@@ -29,18 +44,18 @@ jobs:
         with:
           gradle-version: "8.10.2"
 
-      - name: Locate Android Project
+      - name: Locate Android Project & Sync Assets
         shell: bash
         run: |
           set -e
-          echo "Finding Android Project..."
+          echo "Locating Android Project..."
           
           if [ -f "android/settings.gradle.kts" ]; then
             echo "Found in android/ folder"
-            echo "ANDROID_DIR=android" >> "$GITHUB_ENV"
+            ANDROID_DIR="android"
           elif [ -f "settings.gradle.kts" ]; then
             echo "Found in root"
-            echo "ANDROID_DIR=." >> "$GITHUB_ENV"
+            ANDROID_DIR="."
           else
             ZIP=$(find . -maxdepth 2 -type f -name '*.zip' | head -1)
             if [ -n "$ZIP" ]; then
@@ -48,70 +63,131 @@ jobs:
               mkdir -p extracted_android
               unzip -q -o "$ZIP" -d extracted_android
               ROOT=$(find extracted_android -type f -name "settings.gradle.kts" -print | sed 's#/settings.gradle.kts$##' | head -1)
-              echo "ANDROID_DIR=$ROOT" >> "$GITHUB_ENV"
+              ANDROID_DIR="$ROOT"
             else
               echo "ERROR: Android project not found!"
               exit 1
             fi
           fi
+          
+          echo "ANDROID_DIR=$ANDROID_DIR" >> "$GITHUB_ENV"
+          
+          # Synchronize latest Web UI into Android assets before build
+          ASSETS_DIR="$ANDROID_DIR/app/src/main/assets"
+          mkdir -p "$ASSETS_DIR"
+          
+          if [ -f "index.html" ]; then
+            echo "Syncing index.html to assets..."
+            cp -f "index.html" "$ASSETS_DIR/index.html"
+          fi
+          
+          if [ -f "public/web-bridge.js" ]; then
+            echo "Syncing web-bridge.js to assets..."
+            cp -f "public/web-bridge.js" "$ASSETS_DIR/web-bridge.js"
+          fi
+          
+          if [ -f "public/firebase-sync.js" ]; then
+            echo "Syncing firebase-sync.js to assets..."
+            cp -f "public/firebase-sync.js" "$ASSETS_DIR/firebase-sync.js"
+          fi
+
+          if [ -f "public/jspdf.umd.min.js" ]; then
+            cp -f "public/jspdf.umd.min.js" "$ASSETS_DIR/jspdf.umd.min.js"
+          fi
+
+          if [ -f "public/manifest.json" ]; then
+            cp -f "public/manifest.json" "$ASSETS_DIR/manifest.json"
+          fi
+
+          if [ -f "public/sw.js" ]; then
+            cp -f "public/sw.js" "$ASSETS_DIR/sw.js"
+          fi
+          
+          echo "Asset synchronization complete."
 
       - name: Validate Android Project Files
         shell: bash
         run: |
           set -e
-          echo "Android Directory: $ANDROID_DIR"
+          echo "Validating Android Directory: $ANDROID_DIR"
           test -f "$ANDROID_DIR/settings.gradle.kts"
           test -f "$ANDROID_DIR/build.gradle.kts"
           test -f "$ANDROID_DIR/app/build.gradle.kts"
           test -f "$ANDROID_DIR/app/src/main/AndroidManifest.xml"
+          test -f "$ANDROID_DIR/app/src/main/assets/index.html"
           echo "Project validation successful."
 
-      - name: Build Debug APK
+      - name: Configure Version Code and Name
+        shell: bash
+        run: |
+          V_CODE="${{ github.event.inputs.version_code || '98' }}"
+          V_NAME="${{ github.event.inputs.version_name || '98.0.0' }}"
+          echo "Setting versionCode=$V_CODE, versionName=$V_NAME"
+          sed -i "s/versionCode = [0-9]*/versionCode = $V_CODE/g" "$ANDROID_DIR/app/build.gradle.kts"
+          sed -i "s/versionName = \".*\"/versionName = \"$V_NAME\"/g" "$ANDROID_DIR/app/build.gradle.kts"
+
+      - name: Build Android Debug APK
         working-directory: ${{ env.ANDROID_DIR }}
         run: |
           gradle clean assembleDebug --no-daemon --stacktrace
 
-      - name: Prepare APK Package
+      - name: Prepare APK Package and Checksum
         shell: bash
         run: |
           set -e
-          APK_PATH=$(find "$ANDROID_DIR/app/build/outputs/apk/debug" -type f -name "*.apk" | head -1)
-          if [ -z "$APK_PATH" ]; then
+          APK_RAW=$(find "$ANDROID_DIR/app/build/outputs/apk/debug" -type f -name "*.apk" | head -1)
+          if [ -z "$APK_RAW" ]; then
             echo "ERROR: APK file not generated!"
             exit 1
           fi
-          echo "Found APK: $APK_PATH"
-          cp "$APK_PATH" "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v96.apk"
-          echo "FINAL_APK=$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v96.apk" >> "$GITHUB_ENV"
-          ls -lh "$ANDROID_DIR/app/build/outputs/apk/debug/Muzammil-Online-Service-v96.apk"
+          
+          FINAL_APK_NAME="Muzammil_Online_Service_v98.apk"
+          OUTPUT_DIR="release_output"
+          mkdir -p "$OUTPUT_DIR"
+          
+          cp "$APK_RAW" "$OUTPUT_DIR/$FINAL_APK_NAME"
+          sha256sum "$OUTPUT_DIR/$FINAL_APK_NAME" > "$OUTPUT_DIR/$FINAL_APK_NAME.sha256"
+          
+          echo "FINAL_APK=$OUTPUT_DIR/$FINAL_APK_NAME" >> "$GITHUB_ENV"
+          echo "OUTPUT_DIR=$OUTPUT_DIR" >> "$GITHUB_ENV"
+          echo "Successfully created $OUTPUT_DIR/$FINAL_APK_NAME"
+          ls -lh "$OUTPUT_DIR"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil-Online-Service-v96-APK
-          path: ${{ env.FINAL_APK }}
+          name: Muzammil_Online_Service_v98_APK
+          path: ${{ env.OUTPUT_DIR }}/*
           if-no-files-found: error
           retention-days: 90
 
       - name: Publish GitHub Release with Direct APK Download
         uses: softprops/action-gh-release@v2
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' || github.event.inputs.create_release == 'true'
         continue-on-error: true
         with:
-          tag_name: v96.0
-          name: "Muzammil Online Service v96 APK"
+          tag_name: v98.0
+          name: "Muzammil Online Service v98.0 APK (Official Release)"
           body: |
-            ## ðŸ“² Muzammil Online Service Android APK (v96)
+            ## 📲 Muzammil Online Service Android APK (v98.0)
             
-            Official release with multi-device login, WhatsApp 1-Click login, and offline password verification.
+            Official release for **Muzammil Online Service** (Build 98).
             
-            ### How to Install:
-            1. Download `Muzammil-Online-Service-v96.apk` below.
-            2. Open the file on your Android phone.
-            3. Tap **Allow from this source** if prompted.
-            4. Tap **Install** and login with your credentials or WhatsApp Activation Code.
+            ### ✨ What's New in v98.0:
+            * 🖥️ **Desktop Mode:** Full desktop viewport and desktop User-Agent switcher to open government portals (Aadhaar, PM-Kisan, MahaDBT, PAN, DigiLocker, Parivahan) in desktop PC layout on mobile phones.
+            * 📄 **Ultra-HD Document Scanner:** 6 scanning filters (Magic Color, High-Contrast B&W, Document Crisp, Photo Enhancer, Grayscale, Original HD) with perspective deskew crop, live sharpness/whitening sliders, multi-page scanning, and 300 DPI A4 PDF export.
+            * 🪪 **Direct PVC Card Maker Link:** 1-click import from scanner directly into the PVC print layout.
+            * 🔄 **Multi-Device Live Sync:** Firestore real-time active session preservation across multiple phones.
+            * ⚡ **WhatsApp 1-Click Login:** Fast activation and direct operator sync.
+            
+            ### 📥 Installation Steps:
+            1. Download **`Muzammil_Online_Service_v98.apk`** below.
+            2. Open the downloaded APK on your Android device (Android 7.0+ supported).
+            3. If prompted, allow "Install Unknown Apps" from your browser/files app.
+            4. Tap **Install** and login with your operator account or WhatsApp PIN.
           files: |
             ${{ env.FINAL_APK }}
+            ${{ env.FINAL_APK }}.sha256
           draft: false
           prerelease: false
         env:
