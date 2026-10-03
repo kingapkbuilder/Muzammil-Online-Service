@@ -1,16 +1,16 @@
-name: Build and Release Muzammil Online Service APK (v101)
+name: Build and Release Muzammil Online Service APK (v102)
 
 on:
   workflow_dispatch:
     inputs:
       version_code:
-        description: 'Android Version Code (e.g. 101)'
+        description: 'Android Version Code (e.g. 102)'
         required: false
-        default: '101'
+        default: '102'
       version_name:
-        description: 'Android Version Name (e.g. 101.0.0)'
+        description: 'Android Version Name (e.g. 102.0.0)'
         required: false
-        default: '101.0.0'
+        default: '102.0.0'
       create_release:
         description: 'Create GitHub Release with direct APK download'
         required: false
@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build Android APK (v101.0)
+    name: Build Android APK (v102.0)
     runs-on: ubuntu-latest
 
     steps:
@@ -120,8 +120,8 @@ jobs:
       - name: Configure Version Code and Name
         shell: bash
         run: |
-          V_CODE="${{ github.event.inputs.version_code || '101' }}"
-          V_NAME="${{ github.event.inputs.version_name || '101.0.0' }}"
+          V_CODE="${{ github.event.inputs.version_code || '102' }}"
+          V_NAME="${{ github.event.inputs.version_name || '102.0.0' }}"
           echo "Setting versionCode=$V_CODE, versionName=$V_NAME"
           sed -i "s/versionCode = [0-9]*/versionCode = $V_CODE/g" "$ANDROID_DIR/app/build.gradle.kts"
           sed -i "s/versionName = \".*\"/versionName = \"$V_NAME\"/g" "$ANDROID_DIR/app/build.gradle.kts"
@@ -141,7 +141,7 @@ jobs:
             exit 1
           fi
           
-          FINAL_APK_NAME="Muzammil_Online_Service_v101.apk"
+          FINAL_APK_NAME="Muzammil_Online_Service_v102.apk"
           OUTPUT_DIR="release_output"
           mkdir -p "$OUTPUT_DIR"
           
@@ -156,7 +156,7 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil_Online_Service_v101_APK
+          name: Muzammil_Online_Service_v102_APK
           path: ${{ env.OUTPUT_DIR }}/*
           if-no-files-found: error
           retention-days: 90
@@ -166,15 +166,16 @@ jobs:
         if: github.event_name == 'push' || github.event.inputs.create_release == 'true'
         continue-on-error: true
         with:
-          tag_name: v101.0
-          name: "Muzammil Online Service v101.0 APK (Official Release)"
+          tag_name: v102.0
+          name: "Muzammil Online Service v102.0 APK (Official Release)"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v101.0)
+            ## 📲 Muzammil Online Service Android APK (v102.0)
             
-            Official release for **Muzammil Online Service** (Build 101).
+            Official release for **Muzammil Online Service** (Build 102).
             
-            ### ✨ What's New in v101.0:
-            * 👑 **Master Admin Vault:** VIP direct source code & Android project archive download portal.
+            ### ✨ What's New in v102.0:
+            * 🎬 **Adobe Premiere Pro Multilayer Video Studio:** V1-V3 & A1-A3 Non-Linear Editing with Lumetri Color Grading, Motion Controls, CTI Playhead and 1080p Export.
+            * 👑 **Master Admin Vault (v102.0):** VIP direct source code & Android project archive download portal.
             * ☁️ **Real-time Server Monitor:** Cloud SQL PostgreSQL and Firebase Firestore permanent lifetime health tracking.
             * 🖥️ **Desktop Mode in 3-Dots:** Seamless PC layout switcher inside native WebView.
             * 📄 **Ultra-HD Document Scanner:** 6 scanning filters with perspective deskew crop and A4 PDF export.
@@ -182,7 +183,7 @@ jobs:
             * 🔄 **Multi-Device Realtime Sync:** Cloud database persistence across all operator phones.
             
             ### 📥 Installation Steps:
-            1. Download **`Muzammil_Online_Service_v101.apk`** below.
+            1. Download **`Muzammil_Online_Service_v102.apk`** below.
             2. Open the downloaded APK on your Android device (Android 7.0+ supported).
             3. If prompted, allow "Install Unknown Apps" from your browser/files app.
             4. Tap **Install** and login with your operator account or WhatsApp PIN.
