@@ -1,16 +1,16 @@
-name: Build and Release Muzammil Online Service APK (v103)
+name: Build and Release Muzammil Online Service APK (v104)
 
 on:
   workflow_dispatch:
     inputs:
       version_code:
-        description: 'Android Version Code (e.g. 103)'
+        description: 'Android Version Code (e.g. 104)'
         required: false
-        default: '103'
+        default: '104'
       version_name:
-        description: 'Android Version Name (e.g. 103.0.0)'
+        description: 'Android Version Name (e.g. 104.0.0)'
         required: false
-        default: '103.0.0'
+        default: '104.0.0'
       create_release:
         description: 'Create GitHub Release with direct APK download'
         required: false
@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build Android APK (v103.0)
+    name: Build Android APK (v104.0)
     runs-on: ubuntu-latest
 
     steps:
@@ -125,8 +125,8 @@ jobs:
       - name: Configure Version Code and Name
         shell: bash
         run: |
-          V_CODE="${{ github.event.inputs.version_code || '103' }}"
-          V_NAME="${{ github.event.inputs.version_name || '103.0.0' }}"
+          V_CODE="${{ github.event.inputs.version_code || '104' }}"
+          V_NAME="${{ github.event.inputs.version_name || '104.0.0' }}"
           echo "Setting versionCode=$V_CODE, versionName=$V_NAME"
           sed -i "s/versionCode = [0-9]*/versionCode = $V_CODE/g" "$ANDROID_DIR/app/build.gradle.kts"
           sed -i "s/versionName = \".*\"/versionName = \"$V_NAME\"/g" "$ANDROID_DIR/app/build.gradle.kts"
@@ -146,7 +146,7 @@ jobs:
             exit 1
           fi
           
-          FINAL_APK_NAME="Muzammil_Online_Service_v103.apk"
+          FINAL_APK_NAME="Muzammil_Online_Service_v104.apk"
           OUTPUT_DIR="release_output"
           mkdir -p "$OUTPUT_DIR"
           
@@ -161,7 +161,7 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil_Online_Service_v103_APK
+          name: Muzammil_Online_Service_v104_APK
           path: ${{ env.OUTPUT_DIR }}/*
           if-no-files-found: error
           retention-days: 90
@@ -171,26 +171,23 @@ jobs:
         if: github.event_name == 'push' || github.event.inputs.create_release == 'true'
         continue-on-error: true
         with:
-          tag_name: v103.0
-          name: "Muzammil Online Service v103.0 APK (Official Release)"
+          tag_name: v104.0
+          name: "Muzammil Online Service v104.0 APK (Official Release)"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v103.0)
+            ## 📲 Muzammil Online Service Android APK (v104.0)
             
-            Official release for **Muzammil Online Service** (Build 103).
+            Official release for **Muzammil Online Service** (Build 104).
             
-            ### ✨ What's New in v103.0:
-            * 🎬 **Premiere 4K UHD Multilayer Video Studio Pro:** Full 4K Ultra-HD (3840×2160), 4K Vertical Reels (2160×3840), 60 FPS, 45 Mbps Ultra Master Render.
-            * 📁 **All Video & Image File Formats Supported:** Universal file support for MP4, WebM, MKV, MOV, AVI, 3GP, TS, M4V, FLV, WMV, PNG, JPG, WEBP, GIF, SVG, BMP, TIFF, AVIF, HEIC.
-            * 📱 **Dedicated Bottom Navigation Tab:** Instant one-tap access to 🎬 Video Edit directly from the bottom bar and home screen.
-            * 👑 **Master Admin Vault (v103.0):** VIP direct source code & Android project archive download portal.
-            * ☁️ **Real-time Server Monitor:** Cloud SQL PostgreSQL and Firebase Firestore permanent lifetime health tracking.
-            * 🖥️ **Desktop Mode in 3-Dots:** Seamless PC layout switcher inside native WebView.
-            * 📄 **Ultra-HD Document Scanner:** 6 scanning filters with perspective deskew crop and A4 PDF export.
-            * 🪪 **Instant Card & Service Portals:** Direct tap-to-open portal integration without blocking.
-            * 🔄 **Multi-Device Realtime Sync:** Cloud database persistence across all operator phones.
+            ### ✨ What's New in v104.0:
+            * 🎬 **Full-Screen Landscape Premiere Pro Studio:** Launches into true edge-to-edge landscape editing suite on mobile and desktop.
+            * 🟢 **Real-Time Chroma Key Engine:** Green/Blue screen removal with live eyedropper color picker, tolerance, edge feathering, and spill suppression.
+            * ✨ **Dynamic Motion Animation Suite:** Ken Burns Pan & Zoom, Fly In Left/Right/Bottom, Zoom Punch, Bounce In, Camera Shake, Glitch Twitch, Pulse, and Spin 360 presets.
+            * 🎨 **Visual Presets & Effects:** Teal & Orange, Vintage 70s Film, Cyberpunk Neon, Golden Hour, B&W Noir, VHS Glitch, and Lumetri color controls.
+            * 🛠️ **Full Editing Toolbar:** Selection (V), Razor Blade (C), Slip (Y), Hand (H), Split clip, Duplicate, Trim, Audio mixer, and multi-track V1-V3 / A1-A3 timeline.
+            * ⚡ **GitHub Upload Optimized:** Project archive size <5MB, easily uploaded to GitHub web without hitting the 25MB file size limit.
             
             ### 📥 Installation Steps:
-            1. Download **`Muzammil_Online_Service_v103.apk`** below.
+            1. Download **`Muzammil_Online_Service_v104.apk`** below.
             2. Open the downloaded APK on your Android device (Android 7.0+ supported).
             3. If prompted, allow "Install Unknown Apps" from your browser/files app.
             4. Tap **Install** and login with your operator account or WhatsApp PIN.
