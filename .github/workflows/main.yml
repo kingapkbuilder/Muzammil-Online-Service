@@ -1,16 +1,16 @@
-name: Build and Release Muzammil Online Service APK (v111)
+name: Build and Release Muzammil Online Service APK (v112)
 
 on:
   workflow_dispatch:
     inputs:
       version_code:
-        description: 'Android Version Code (e.g. 111)'
+        description: 'Android Version Code (e.g. 112)'
         required: false
-        default: '111'
+        default: '112'
       version_name:
-        description: 'Android Version Name (e.g. 111.0.0)'
+        description: 'Android Version Name (e.g. 112.0.0)'
         required: false
-        default: '111.0.0'
+        default: '112.0.0'
       create_release:
         description: 'Create GitHub Release with direct APK download'
         required: false
@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build Android APK (v111.0)
+    name: Build Android APK (v112.0)
     runs-on: ubuntu-latest
 
     steps:
@@ -163,7 +163,7 @@ jobs:
             exit 1
           fi
           
-          FINAL_APK_NAME="Muzammil_Online_Service_v111.apk"
+          FINAL_APK_NAME="Muzammil_Online_Service_v112.apk"
           OUTPUT_DIR="release_output"
           mkdir -p "$OUTPUT_DIR"
           
@@ -178,7 +178,7 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Muzammil_Online_Service_v111_APK
+          name: Muzammil_Online_Service_v112_APK
           path: ${{ env.OUTPUT_DIR }}/*
           if-no-files-found: error
           retention-days: 90
@@ -188,23 +188,24 @@ jobs:
         if: github.event_name == 'push' || github.event.inputs.create_release == 'true'
         continue-on-error: true
         with:
-          tag_name: v111.0
-          name: "Muzammil Online Service v111.0 APK (Official Production Release - Play Protect Safe & HD Document Scanner)"
+          tag_name: v112.0
+          name: "Muzammil Online Service v112.0 APK (Official Production Release - Play Protect Safe & Self Password Change Portal)"
           body: |
-            ## 📲 Muzammil Online Service Android APK (v111.0 Production Release)
+            ## 📲 Muzammil Online Service Android APK (v112.0 Production Release)
             
-            Official signed production release for **Muzammil Online Service** (Build 111 - Play Protect Safe).
+            Official signed production release for **Muzammil Online Service** (Build 112 - Play Protect Safe).
             
-            ### ✨ What's New in v111.0:
+            ### ✨ What's New in v112.0:
+            * 🔑 **Self Password Change Portal v112.0:** Master Admin (Imran Khan) and all operators can now securely change their password in real-time. Syncs with Cloud SQL & Firestore instantly.
             * 🛡️ **Play Protect Safe Release:** Signed with dedicated production RSA-2048 certificate (v1, v2, v3 Signature Scheme) with `debuggable: false` to eliminate Play Protect blocks.
-            * 📑 **Ultra HD Document Scanner v111.0:** Auto-detects paper corners on upload, perspective warp correction with zero skew, 4-way corner nudge controls, and loupe reticle.
+            * 📑 **Ultra HD Document Scanner v112.0:** Auto-detects paper corners on upload, perspective warp correction with zero skew, 4-way corner nudge controls, and loupe reticle.
             * 🪄 **Full HD Dual-Engine Enhancement:** Clean paper background whitening, deep laser black text, authentic color photo preservation, and shadow removal.
             * 🔍 **5-Stage Live Application Tracking:** Real-time customer tracking and instant WhatsApp updates.
             * 💳 **Dynamic UPI QR & Token Khata:** Custom UPI QR generation, UTR verification, and customer ledger.
             * ⚡ **GitHub Safe Package (<5MB):** Clean project zip archives dynamically built under GitHub limits.
             
             ### 🛡️ Play Protect Bypass & Installation Guide (Agar Warning Aaye):
-            1. Download **`Muzammil_Online_Service_v111.apk`** below.
+            1. Download **`Muzammil_Online_Service_v112.apk`** below.
             2. Open APK to install.
             3. Agar phone par *"Blocked by Play Protect"* ya *"Unrecognised App"* notification aaye:
                - Click on **"More details" (या अधिक विवरण)** 👇
